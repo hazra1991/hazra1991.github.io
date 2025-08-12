@@ -12,9 +12,7 @@ tags: [python, pip, pyproject.toml, packaging, build-system, tutorial]
 - [What Happens When You Run pip install?](#what-happens-when-you-run-pip-install)
 - [What is `pyproject.toml` and Why Was It Introduced?](#what-is-pyprojecttoml-and-why-was-it-introduced)
 - [Under the Hood: How pip Uses pyproject.toml (The flow we were waiting)](#under-the-hood-how-pip-uses-pyprojecttoml-the-flow-we-were-waiting)
-- [Package Installation Flow](#package-installation-flow)
-- [Important Notes](#important-notes)
-- [Final Word](#final-word)
+- Final Word
 
 ---
 #### Key Components of the Python Build System before we start
@@ -237,7 +235,7 @@ Once the wheel is successfully built:
 - `__editable__<project>.pth`
     This points your environment to the live source code, not a copied package.
 
-**Package Installation Flow:**
+**Package Installation Flow**
 
 ```plaintext
 pip install ./myproject
@@ -256,7 +254,7 @@ Call backend (e.g., setuptools.build_meta)
      ↓
 Install the built wheel into active environment
 ```
-⚠️ **Important Notes** <a name="important-notes"></a>
+⚠️ **Important Notes**
 
 - **`pyproject.toml`** **is mandatory** for modern builds.
 - If **`pyproject.toml`** is missing, **pip may fallback** to legacy **`setup.py`** behavior (if still present).
@@ -265,6 +263,6 @@ Install the built wheel into active environment
   - The directory contains a valid **`pyproject.toml`** or **`setup.py`**.
 
 
-✨ **Final Word** <a name="final-word"></a>
+✨ **Final Word**
 
 So under the hood, **pip is not a build tool**. It's an installer that delegates the actual build logic to whatever backend you've defined in **`pyproject.toml`**. That’s why your backend (e.g., **setuptools**) must be properly configured and up-to-date.

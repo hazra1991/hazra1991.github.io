@@ -56,7 +56,7 @@ Typing lets us **add hints** about what types a function expects and what it ret
 These hints help:
 
 1. **You and your team** understand what kind of data should be used  
-2. **Tools like [Mypy](http://mypy-lang.org/)** (static type checkers) catch potential errors *before* running the code
+2. **Tools like [Mypy](https://mypy-lang.org/)** (static type checkers) catch potential errors *before* running the code
 
 Example with type hints:
 

@@ -13,7 +13,7 @@ tags: [networking, sockets, python, tcp/ip, communication, tutorial]
 - [How It All Connects (Visual)](#how-it-all-connects-visual)
 - [Understanding Sockets Through a Simple Analogy](#understanding-sockets-through-a-simple-analogy)
 - [Building Protocols (HTTP, SSH, etc.)](#building-protocols-http-ssh-etc)
-- [Now Let’s See Step-by-Step: What Happens When a Server Creates a TCP Socket and What FD Are Created and How](#now-lets-see-step-by-step-what-happens-when-a-server-creates-a-tcp-socket-and-what-fd-are-created-and-how)
+- [Now Let’s See Step-by-Step: What Happens When a Server Creates a TCP Socket and What FD Are Created and How](#now-let-see-step-by-step-what-happens-when-a-server-creates-a-tcp-socket-and-what-fd-are-created-and-how)
 - [What About Selectors / Epoll?](#what-about-selectors--epoll)
 - [What's a File Descriptor (FD)?](#whats-a-file-descriptor-fd)
 - [Basic Socket Utility Functions](#basic-socket-utility-functions)

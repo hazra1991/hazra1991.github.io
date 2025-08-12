@@ -249,5 +249,4 @@ If you’re moving toward automation, understanding these concepts—and practic
 
 **References:**
 - [RFC 6241 – Network Configuration Protocol (NETCONF)](https://datatracker.ietf.org/doc/html/rfc6241)  
-- [YANG Central](http://www.yang-central.org/)  
 - [Juniper NETCONF Tag Summary](https://www.juniper.net/documentation/en_US/junos/topics/reference/tag-summary/netconf-target.html)  
