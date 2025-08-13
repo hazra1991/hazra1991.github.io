@@ -85,8 +85,8 @@ class Car:
 cobj = Car()     # cobj refers to Car object in heap
 ```
 **A Visual undersanding of the internals**
-![diagram1](/assets/images/mem_manage_2.png)
-![diagram1](/assets/images/mem_manage_1.png)
+![diagram1](/assets/images/snaps/mem_manage_2.png)
+![diagram1](/assets/images/snaps/mem_manage_1.png)
 
 ---
 ### Reference Counting and Garbage Collection (GC)

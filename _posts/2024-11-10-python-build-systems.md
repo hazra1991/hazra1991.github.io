@@ -102,7 +102,7 @@ Step-by-step when running `pip install .` or `python -m build`:
 4. Backend creates files in `dist/`  
 5. If installing, pip installs from the `.whl`  
 
-![diagram](/assets/images/python_build_flow.png)
+![diagram](/assets/images/snaps/python_build_flow.png)
 
 ###  Types of Distributions
 
