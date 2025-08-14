@@ -349,11 +349,14 @@ services:
 **Run it with:**
 
 ```shell
-docker-compose up
+docker-compose up    #  if not installed as plugin
+docker-compose down
 # or 
+docker compose up    #  if installed as plugin
 docker compose down
 
 ```
+> - Use **`docker compose`** if installed as a plugin (recomened and new way) else use **`docker-compose`** 
 
 ## Key questions on docker compose
 
