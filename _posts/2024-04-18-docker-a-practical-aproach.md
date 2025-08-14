@@ -140,6 +140,10 @@ sudo apt install apt-transport-https ca-certificates curl software-properties-co
   >sudo apt update
   >sudo apt install docker-ce docker-ce-cli containerd.io -y
   >```
+  >Install Docker compose as a plugin **(Recomended)**
+  >```shell
+  >sudo apt install docker-compose-plugin
+  >```
   {: .prompt-tip}
 
 - [x] **Linux Distro Repositories** install via **`sudo apt install docker.io docker-compose -y`**
