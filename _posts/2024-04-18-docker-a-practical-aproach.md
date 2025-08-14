@@ -119,22 +119,40 @@ Install required packages
 ```shell
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 ```
+#### 🐳 Installing Docker: **Using Official Docker CE**  or  **Linux Distro Repositories**
 
-Add Docker’s official GPG key  
-```shell
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-```
+- [x] **Official Docker CE** (*Recomended*) install via **`sudo apt install docker-ce docker-ce-cli containerd.io -y`**
+  >- Using `docker-ce`, `docker-ce-cli`, and `containerd.io` (Official Docker Repo):
+  >- **Source:** Docker’s official repository.
+  >- **Pros:** Latest stable version, faster updates, better feature support.
+  >- **Setup:** Requires adding Docker’s GPG key and repo.
+  >- **Best for:** Production use and when you need the latest Docker features.
+  >
+  >```shell
+  >curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  >```
+  >Add Docker repository  
+  >```shell
+  >sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+  >```
+  >Install Docker Engine  
+  >```shell
+  >sudo apt update
+  >sudo apt install docker-ce docker-ce-cli containerd.io -y
+  >```
+  {: .prompt-tip}
 
-Add Docker repository  
-```shell
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-```
-
-Install Docker Engine  
-```shell
-sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io -y
-```
+- [x] **Linux Distro Repositories** install via **`sudo apt install docker.io docker-compose -y`**
+  >- Using `docker.io` and `docker-compose` (Linux Distro Repositories)
+  >- **Source:** Your Linux distribution’s official repositories.
+  >- **Pros:** Simple installation, no need to add external repos or keys.
+  >- **Cons:** Typically older versions, updated less frequently.
+  >- **Best for:** Quick setups, testing, or when stability with the distro is preferred.
+  >
+  > ```shell
+  >sudo apt install docker.io docker-compose -y
+  >```
+  {: .prompt-warning}
 
 Start and enable Docker  
 ```shell
