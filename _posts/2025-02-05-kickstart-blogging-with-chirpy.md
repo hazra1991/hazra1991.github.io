@@ -15,9 +15,11 @@ image:
   - [Basic Markdown Elements (Standard)](#basic-markdown-elements-standard)
   - [Advanced Styling and Syntax with Markdown, Kramdown, and Chirpy](#advanced-styling-and-syntax-with-markdown-kramdown-and-chirpy)
     - [Code blocks](#code-blocks)
-    - [Remove Line Number inside Code Block](#remove-line-number-inside-code-block)
-    - [Specifying the Filename or Text in Code Block](#specifying-the-filename-or-text-in-code-block)
-    - [Liquid Codes](#liquid-codes)
+      - [Specifying Language inside code block](#specifying-language-inside-code-block)
+      - [Remove Line Number inside Code Block](#remove-line-number-inside-code-block)
+      - [Specifying the Filename or Text in Code Block](#specifying-the-filename-or-text-in-code-block)
+      - [Liquid Codes](#liquid-codes)
+    - [Creating Expand/Collapse Sections with Markdown](#creating-expandcollapse-sections-with-markdown)
     - [Attribute Lists](#attribute-lists)
     - [Highlight Blocks or Prompt Boxes (Chirpy-Specific)](#highlight-blocks-or-prompt-boxes-chirpy-specific)
     - [Lists](#lists)
@@ -276,6 +278,67 @@ If you want to display the **Liquid** snippet, surround the liquid code with `{%
 {% endraw %}
 ````
 ---
+### **Creating Expand/Collapse Sections with Markdown**
+You can use the `<details>` and `<summary>` tags to create expandable sections.
+>If want to renderd markdown formats like list ,codeblocks etc use the `<div>` or `<article>` tags inside `<summary>` to wrape the content. all examples shown below. 
+{: .prompt-info}
+
+**Normal text Expand/Collapse syntax** 
+
+```markdown
+<details>
+  <summary>Click to expand plain summary</summary>
+  This is a normal summary to create expandable blocks
+  if doesnot supports markdown special formats like list or code blocks
+</details>
+```
+*Example*
+<details>
+  <summary>Click to expand plain summary</summary>
+  This is a normal summary to create expandable blocks
+  if doesnot supports markdown special formats like list or code blocks
+</details>
+
+
+**Expand/Collapse syntax with markdown formatting**
+
+````markdown
+<details>
+  <summary>Click to expand markdown formatting</summary>
+
+  <div markdown="1">
+
+  - List item 1  
+  - List item 2
+
+  ```python
+    print("Hello, world!")
+  ```
+  </div> 
+</details>
+
+````
+
+*Example*
+
+<details>
+  <summary>Click to expand markdown formatting</summary>
+
+  <div markdown="1">
+
+  - List item 1  
+  - List item 2
+
+  ```python
+    print("Hello, world!")
+  ```
+  </div> 
+</details>
+
+
+>- Note: `<div markdown="1">` can be replaced with `<article markdown="1">` as well 
+>- You can put Expand/Collapse block at any level and can make it a part of a list as well
+{: .prompt-tip}
 
 ### **Attribute Lists**
 
