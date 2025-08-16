@@ -15,29 +15,65 @@ image:
   - [Basic Markdown Elements (Standard)](#basic-markdown-elements-standard)
   - [Advanced Styling and Syntax with Markdown, Kramdown, and Chirpy](#advanced-styling-and-syntax-with-markdown-kramdown-and-chirpy)
     - [Code blocks](#code-blocks)
-      - [Specifying Language inside code block](#specifying-language-inside-code-block)
-      - [Remove Line Number inside Code Block](#remove-line-number-inside-code-block)
-      - [Specifying the Filename or Text in Code Block](#specifying-the-filename-or-text-in-code-block)
-      - [Liquid Codes](#liquid-codes)
+      - <details>
+        <summary>Click to expand</summary>
+        <div markdown="1">
+      
+        - [Specifying Language inside code block](#specifying-language-inside-code-block)
+        - [Remove Line Number inside Code Block](#remove-line-number-inside-code-block)
+        - [Specifying the Filename or Text in Code Block](#specifying-the-filename-or-text-in-code-block)
+        - [Liquid Codes](#liquid-codes)
+        
+        </div>
+        </details>
+
     - [Creating Expand/Collapse Sections with Markdown](#creating-expandcollapse-sections-with-markdown)
     - [Attribute Lists](#attribute-lists)
     - [Highlight Blocks or Prompt Boxes (Chirpy-Specific)](#highlight-blocks-or-prompt-boxes-chirpy-specific)
-    - [Lists](#lists)
+    - [Listing](#lists)
     - [Working with Images](#working-with-images)
-      - [Default (with caption)](#default-with-caption)
-      - [Left aligned](#left-aligned)
-      - [Float to left](#float-to-left)
-      - [Float to right](#float-to-right)
+      - <details>
+        <summary>Click to expand</summary>
+        <div markdown="1">
+      
+        - [Default (with caption)](#default-with-caption)
+        - [Left aligned](#left-aligned)
+        - [Float to left](#float-to-left)
+        - [Float to right](#float-to-right)
+
+        </div>
+        </details>
     - [Adding Videos](#adding-videos)
       - [Social Media Platform](#social-media-platform)
       - [Video Files](#video-files)
     - [Audios](#audios)
+    - [Linking url and sections in Jekyll](#linking-url-and-sections-in-jekyll)
+      - <details>
+        <summary>Click to expand</summary>
+        <div markdown="1">
+      
+        - [Linking direct urls](#linking-direct-urls)
+        - [Linking sections and url dynamically](#linking-sections-urls-dynamically)
+        - [Linking sections in same file](#linking-sections-samefile)
+
+        </div>
+        </details>
+    - [Bonus: Manually add a custom anchor](#bonus-manually-add-custom-anchor-if-heading-is-weird)
+      - [Weird heading](#weird-heading)
+      - [Linking to a Non-Heading](#non-heading)
 
 - [Special thanks to **Cotes** and all the contributors](#inspiration)
+  - <details>
+    <summary>Click to expand</summary>
+    <div markdown="1">
+  
     - [Text and Typography](https://chirpy.cotes.page/posts/text-and-typography/)
     - [Getting Started](https://chirpy.cotes.page/posts/getting-started/)
     - [Write a New Post](https://chirpy.cotes.page/posts/write-a-new-post/)
     - [Customize the Favicon](https://chirpy.cotes.page/posts/customize-the-favicon/)
+
+    </div>
+    </details>
 
 
 
@@ -450,6 +486,8 @@ Moon
 
 ## **Working with Images**
 
+[For working with image covers click here]({{ site.posts | where: "slug", "chirpy-jekyll-front-matter" | first.url | relative_url }}#bonus-full-image-block-in-front-matter)
+
 Images in Chirpy can be embedded using standard Markdown syntax, but Chirpy also provides additional **CSS utility classes** and attributes to fine-tune how images are displayed.
 
 These can be applied using **attribute lists** `{}` directly after the image syntax.
@@ -613,7 +651,7 @@ Consider an example using all of the above:
 
 ---
 
-### Audios
+## **Audios**
 there is a predefined audio template that renders ours audio 
 
 | File / Folder                      | Purpose                                                |
@@ -647,6 +685,128 @@ Consider an example using all of the above:
 %}
 ```
 {% endraw %}
+
+---
+
+## **Linking url and sections in Jekyll**
+
+<span id="linking-sections-samefile"></span>
+**Linking sections in same file**
+
+```markdown
+[any text name to show](#section-name-separated-by-hypen-all-in-small) 
+```
+or any special name is forced ::-  check -- [Bonus: Manually add a custom anchor](#bonus-manually-add-custom-anchor-if-heading-is-weird)
+
+<span id="linking-sections-urls-dynamically"></span>
+**Linking sections and url dynamically from other files**
+{% raw %}
+```markdown
+# POST URL (different)
+[any name you like]({{ site.posts | where: "slug", "typing-in-python" | first.url | relative_url }})  # {{}} <--  this is a liquid language used by jekyll templeting engine
+
+# POST URL SECTIONS (different)
+[Go to Installation]({{ site.posts | where: "slug", "my-post" | first.url | relative_url }}#installation)
+
+```
+{% endraw %}
+
+> Note : you can force a `slug` to the [front matter]({{ site.posts | where: "slug", "chirpy-jekyll-front-matter" | first.url | relative_url }}) like this 
+>```markdown
+>---
+>title: My Post
+>slug: my-post
+>---
+>```
+{: .prompt-tip}
+
+**Breakdown of Each Part (Additional Explanation)**
+
+> `|` is called a filter pipe
+> It takes the output of the left-hand side and passes it through a filter on the right-hand side.
+> just like unix pipe
+
+1. `site.posts`  
+Built-in Jekyll variable containing all posts in `_posts/`.
+- 🔹 Example:
+  ```json
+  [
+    { "title": "Post A", "slug": "post-a", "url": "/blog/2023/06/01/post-a/" },
+    { "title": "Post B", "slug": "chirpy-jekyll-front-matter", "url": "/blog/2023/06/25/chirpy-jekyll-front-matter/" }
+  ]
+  ```
+
+2. `| where: "slug", "chirpy-jekyll-front-matter"`  
+Filters posts by `slug` value.
+  - 🔹 Result:
+  ```json
+  [
+    { "title": "...", "slug": "chirpy-jekyll-front-matter", "url": "/blog/2023/06/25/chirpy-jekyll-front-matter/" }
+  ]
+  ```
+
+3. `| first`  
+Gets the first (and likely only) matching post.
+
+4. `.url`  
+Extracts the URL of that post.  
+- 🔹 Example: `/blog/2023/06/25/chirpy-jekyll-front-matter/`
+
+5. `| relative_url`  
+Prepends `baseurl` if set in `_config.yml`.
+
+🧾 Final Output Example
+With:
+- A post slug: `chirpy-jekyll-front-matter`  
+- `baseurl: ""`  
+
+This line:
+```liquid
+{{ site.posts | where: "slug", "chirpy-jekyll-front-matter" | first.url | relative_url }}
+```
+➡️ renders as:  
+`/blog/2023/06/25/chirpy-jekyll-front-matter/`
+
+<span id="linking-direct-urls"></span>
+**Linking direct urls**
+
+```markdown
+[any name like click me](https://www.myurl.com)
+```
+
+## **Bonus: Manually add a custom anchor** {#bonus-manually-add-custom-anchor-if-heading-is-weird}
+
+<span id="weird-heading"></span>
+**weird heading**
+>Note you can anchor all the headings exactly the same way. This applies to headings of any level — `#`, `##`, `###`, etc.When you write this in Markdown `# Some Heading` Jekyll (via Kramdown) automatically turns it into `<h1 id="some-heading">Some Heading</h1>`,the tag `<h1>` or `<h2>` etc depends on the level
+{: .prompt-info}
+
+If your heading is like `## Step 1: Setup 🚀`: It might produce a messy ID.
+So you can force an ID like this `## Step 1: Setup 🚀 {#setup}`:
+
+examples::
+```markdown
+## Step 1: Setup 🚀 {#setup}
+```
+Then link to:
+```markdown
+[some name]({{ site.posts | where: "slug", "my-post" | first.url | relative_url }}#setup)
+```
+
+<span id="non-heading"></span>
+**Linking to a Non-Heading**
+
+You’ll need to manually insert an HTML ID like:
+
+```md
+<span id="my-anchor"></span>
+Some **custom** section here.
+
+Then link with:
+
+[Jump here](#my-anchor)
+```
+---
 
 Please follow the link to learn more about writing a blog from the official site:  
 [Write a New Post – Chirpy Official Guide](https://chirpy.cotes.page/posts/write-a-new-post/)
