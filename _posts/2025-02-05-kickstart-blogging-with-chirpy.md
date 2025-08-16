@@ -24,7 +24,7 @@ image:
         - [Specifying the Filename or Text in Code Block](#specifying-the-filename-or-text-in-code-block)
         - [Liquid Codes](#liquid-codes)
         
-        </div>
+        </div>  
         </details>
 
     - [Creating Expand/Collapse Sections with Markdown](#creating-expandcollapse-sections-with-markdown)
