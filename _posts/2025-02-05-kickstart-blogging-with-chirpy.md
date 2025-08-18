@@ -31,6 +31,7 @@ image:
     - [Attribute Lists](#attribute-lists)
     - [Highlight Blocks or Prompt Boxes (Chirpy-Specific)](#highlight-blocks-or-prompt-boxes-chirpy-specific)
     - [Listing](#lists)
+    - [using `<kbd>` keyboard style](#kbd)
     - [Working with Images](#working-with-images)
       - <details>
         <summary>Click to expand</summary>
@@ -482,6 +483,21 @@ Sun
 Moon
 : the natural satellite of the earth, visible by reflected light from the sun
 ```
+
+---
+
+### Using `<kbd> keyboard style key` {#kbd}
+
+```html
+<kbd>here is my key</kbd> > <kbd>another key</kbd>
+<kbd>Ctrl</kbd> + <kbd>c</kbd>
+```
+output :
+
+<kbd>here is my key</kbd> > <kbd>another key</kbd>
+
+<kbd>Ctrl</kbd> + <kbd>c</kbd>
+
 ---
 
 ## **Working with Images**
