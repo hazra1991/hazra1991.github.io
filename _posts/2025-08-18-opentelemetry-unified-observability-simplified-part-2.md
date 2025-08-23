@@ -15,6 +15,25 @@ image:
 
   <div markdown="1">
 
+  - [Understanding OTel’s Schema, SDK Objects and OTel's components](#understanding-otels-schema-sdk-objects-and-otels-componets)
+  - [Why Use OpenTelemetry SDKs?](#why-use-opentelemetry-sdks)
+  - [OTEL Components and How Does OpenTelemetry Work?](#otel-components-and-how-does-opentelemetry-work)
+    - [Specification — The Rulebook (Not the Schema Itself)](#specification--the-rulebook-not-the-schema-itself)
+    - [Data Model — This Is the Schema](#data-model--this-is-the-schema)
+    - [API — This Is the Interface (not the implementation)](#api-in-otel)
+    - [SDK — Implements Interface + Handles Schema Generation](#sdk-in-otel)
+    - [Instrumentation Libraries *(optional but common)*](#instrumentation-libraries-optional-but-common)
+    - [Exporter in OpenTelemetry](#expoter-in-otel)
+    - [Collector *(optional, but common)*](#collector-optional-but-common)
+    - [Observability Backends](#backend-in-otel)
+    - [OpenTelemetry Protocol (OTLP)](#opentelemetry-protocol-otlp)
+  - [OTel’s Schema](#otels-schema)
+    - [Some Questions About OTel’s Schema — Answered](#questions-about-otel)
+  - [Mental Model of the schema](#mental-model-of-the-schema)
+  - [Minimal Python code examples for getting the console output](#minimal-python-code-examples-for-getting-the-console-output)
+  - [Trace Context Propagation Across Distributed Systems: How It Works](#trace-context-propagation-across-distributed-systems-how-it-works)
+    - [Who Actually Handles Trace Context Propagation?](#who-actually-handles-trace-context-propagation)
+
   </div>
 </details>
 
@@ -446,7 +465,7 @@ This strict structure ensures consistent parsing, visualization, and correlation
 >- The rest (IDs, times) = handled automatically by the SDK.
 {: .prompt-tip}
 
-### Minimal `python`  code examples for getting the console output
+### Minimal `python`  code examples for getting the console output {#minimal-python-code-examples-for-getting-the-console-output}
 
 ```python
 from opentelemetry import trace
