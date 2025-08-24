@@ -284,6 +284,9 @@ The canonical source of truth is in the **opentelemetry-proto** repository:
 
 
 ### **Semantic Conventions** {#semantic-conventions}
+
+[offitial link](https://opentelemetry.io/docs/specs/semconv/)
+
 These are **agreed-upon attribute keys and meanings** (e.g., `http.method`, `db.system`) used within the flexible fields like  **`attributes` inside the protocol schema** .
 They are **not enforced**, but following them ensures **consistency and interoperability** across tools and backends.
 
