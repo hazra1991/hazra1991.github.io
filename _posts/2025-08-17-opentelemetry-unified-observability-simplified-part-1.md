@@ -20,7 +20,7 @@ image:
   - [Why Do We Need OpenTelemetry (OTel)?](#why-do-we-need-opentelemetry-otel)
   - [How OTel Solves It?](#how-otel-solves-it)
   - [What OpenTelemetry is (Nutshell)](#what-opentelemetry-is-nutshell)
-  - [OTel's Three Pillars: traces, metrics, logs (With Schemas)](#otels-three-pillars-traces-metrics-logs-with-schemas)
+  - [OTel's Three Pillars: traces, metrics, logs (ie.Data Models ,With Schemas)](#otels-three-pillars-traces-metrics-logs-with-schemas)
     - [Traces 🕵️ — What happened, in what order](#traces-anchor)
       - [schema](#trace-schema)
     - [Metrics 📈 — How much, how often, how long](#metrics-anchor)
@@ -131,16 +131,57 @@ You can think of OpenTelemetry (OTel) as three things combined:
   <summary><strong>A Standard (Schema + Semantic Conventions) [click me]</strong></summary>
 
   <div markdown="1">
+  - Two Layers : **Schema + Semantic Conventions**
+    + **Schema** : Strict Structure (Defined in Protobuf) had dfined filed like `traceId` `spanId` `startTimeUnixNano` `name` for a trace schema (or data model).Backend requires exact fields to understand the telemetry is about (its a trace , metric or a log).The structure should not change the values in the atributes can change.
+      * example
+        - ```json
+            {
+              "traceId": "abc123",
+              "spanId": "def456",
+              "startTimeUnixNano": "1690000000000000000"
+            }
+          ```
+    + **Semantic Conventions**: Flexible `Attributes` (Key-Value Pairs) .Structure is open — any key, any value, BUT community agrees on semantic conventions for common fields. ex for a http methods the key will always be `"http.method"`. 
+    * >any applicaiton can create there own conventions and can also aprse them as they want in theier own backend
+    {: .promp-tip}
+      * example
+        - ```json
+          "attributes": [
+            { "key": "http.method", "value": { "stringValue": "GET" } },
+            { "key": "db.user", "value": { "stringValue": "admin" } },
+            { "key": "custom.metric", "value": { "doubleValue": 42.0 } }
+          ]
+        ```
 
-  Defines what telemetry looks like.(`trace`,`metrics`,`logs`)
+  **Defines what each telemetry looks like.(`trace`,`metrics`,`logs`) The outer structure, The data model**
 
-  - Example: a trace must have `traceId`, `spanId`, `parentSpanId`, `name`, `timestamps`, `attributes`, etc.
+  - Example: a <kbd>trace</kbd> must have `traceId`, `spanId`, `parentSpanId`, `name`, `timestamps`, `attributes`, etc.
   - The same applies for metrics and logs.
   - The keys are fixed by spec (you can’t rename `traceId` → `tracingit`).
   - But you **can** add extra key-value pairs in `attributes`.
 
+
   </div> 
   </details>
+
+  **OTel defines its standard through:**
+
+  - **Semantic Conventions**: Documented specs for naming <kbd>attributes</kbd> (eg. attributes inside `trace` data model).
+  - **Data Models (the strict Schema)**: Described in OTel proto files. (how does a trace look like , how does a metric look like)
+  - **Schemas (OTel Schema files)**: Optional files that help remap deprecated → current attribute names.
+  - **Example representation**
+    ```shell
+      Trace (Strict Schema)
+        ├── traceId: abc123
+        ├── spanId: def456
+        ├── name: "HTTP GET /users"
+        ├── ...
+        └── attributes (Flexible, Semantic conventions)
+            ├── http.method: "GET"
+            ├── http.url: "/users"
+            ├── db.user: "readonly_user"
+            └── custom.key: "anything"
+    ```
 
 <span id="as-a-protocol"></span>
 * <details>
@@ -154,6 +195,7 @@ You can think of OpenTelemetry (OTel) as three things combined:
   - Ensures exporters, collectors, and backends all speak the same wire format.
   
   Canonical schema:
+  - **The data model structures are defined in this file (not the Semantic Conventions i.e meaning of the key and values indide the <kbd>attributes</kbd> key inside a `trace` models for example)**
   - OpenTelemetry defines its schema in Protobuf **`(trace.proto, metrics.proto, logs.proto)`**.
   - That’s the wire format used by default.
 
@@ -190,7 +232,7 @@ You can think of OpenTelemetry (OTel) as three things combined:
 
 {% include embed/youtube.html id='iEEIabOha8U' %}
 
-## OTel's Three Pillars: `traces`, `metr ics`, `logs` (With Schemas) {#otels-three-pillars-traces-metrics-logs-with-schemas}
+## OTel's Three Pillars: `traces`, `metr ics`, `logs` (ie.Data Models With Schemas) {#otels-three-pillars-traces-metrics-logs-with-schemas}
 
 OpenTelemetry standardizes three core types of telemetry signals, often referred to as the "three pillars of observability" or “telemetry triad.”:
 **OTel defines one canonical schema for each signal type defined below:**
