@@ -18,8 +18,8 @@ image:
   - [Understanding OTel’s Schema, SDK Objects and OTel's components](#understanding-otels-schema-sdk-objects-and-otels-componets)
   - [Why Use OpenTelemetry SDKs?](#why-use-opentelemetry-sdks)
   - [OTEL Components and How Does OpenTelemetry Work?](#otel-components-and-how-does-opentelemetry-work)
-    - [Specification — The Rulebook (Not the Schema Itself)](#specification--the-rulebook-not-the-schema-itself)
-    - [Data Model — This Is the Schema](#data-model--this-is-the-schema)
+    - [Specification or Standard — The Rulebook (Schema Definitions + Semantic Conventions))](#specification--the-rulebook-not-the-schema-itself)
+    - [Data Model — This Is the Schema part implemented in protobuff](#data-model-the-proto-schema)
     - [API — This Is the Interface (not the implementation)](#api-in-otel)
     - [SDK — Implements Interface + Handles Schema Generation](#sdk-in-otel)
     - [Instrumentation Libraries *(optional but common)*](#instrumentation-libraries-optional-but-common)
@@ -27,7 +27,9 @@ image:
     - [Collector *(optional, but common)*](#collector-optional-but-common)
     - [Observability Backends](#backend-in-otel)
     - [OpenTelemetry Protocol (OTLP)](#opentelemetry-protocol-otlp)
-  - [OTel’s Schema](#otels-schema)
+  - [OTel’s Standard (Schema) = Data Models (strict Schema) + Semantic Conventions](#otels-schema)
+    - [Strict Protocol/Data Model Schema: `trace`, `metric`, and `log`](#strict-protocol-data-model-schema)
+    - [Semantic Conventions](#semantic-conventions)
     - [Some Questions About OTel’s Schema — Answered](#questions-about-otel)
   - [Mental Model of the schema](#mental-model-of-the-schema)
   - [Minimal Python code examples for getting the console output](#minimal-python-code-examples-for-getting-the-console-output)
@@ -62,7 +64,7 @@ Think of SDKs as your **bridge** between application logic and observability inf
 
 ## OTEL Components and How Does OpenTelemetry Work?
 
-OpenTelemetry is built from modular components that work together to collect, process, and export telemetry data (traces, metric  s, and logs). Let’s walk through the core components from left to right in the OpenTelemetry pipeline:
+OpenTelemetry is built from modular components that work together to collect, process, and export telemetry data (traces, metrics, and logs). Let’s walk through the core components (The specification and OpenTelemetry pipeline):
 
 ![image](assets/images/snaps/Otel.png)
 *OpenTelemetry Components (Source: Based on [OpenTelemetry: beyond getting started](https://medium.com/opentelemetry/opentelemetry-beyond-getting-started-5ac43cd0fe26))*
@@ -70,19 +72,50 @@ OpenTelemetry is built from modular components that work together to collect, pr
 
 [**API**](#api-in-otel) -> [**SDK**](#sdk-in-otel) -> [**Expoter**](#expoter-in-otel) -> [**Backend**](#backend-in-otel)
 
-### Specification — The Rulebook (Not the Schema Itself)
+### Specification or Standard — The Rulebook (Schema Definitions + Semantic Conventions) {#specification--the-rulebook-not-the-schema-itself}
+[Go to OTel Schema](#otels-schema)
+
+**OpenTelemetry: Two Layers**
+
+| Layer                        | What is it?                                               | Where is it defined?                    | Is it enforced?                  | Purpose                                                                 |
+|-----------------------------|------------------------------------------------------------|------------------------------------------|----------------------------------|-------------------------------------------------------------------------|
+| 1. Protocol/Data Model Schema | The structure of telemetry data (spans, traces, metrics, logs) | ✅ In opentelemetry-proto (.proto files) | ✅ Yes — strict (protocol-level) | Ensures serialization, transport, and storage can work                 |
+| 2. Semantic Conventions       | Meaning of attribute keys (e.g., `http.method`, `db.system`)   | ✅ In the semconv spec                   | ❌ No — convention only           | Enables backends and UIs to interpret, visualize, and analyze data meaningfully |
+
 
 The **OpenTelemetry Specification** is **not** a schema itself, but rather:
 
 - A standardized description of **how telemetry should be structured and produced**  
   → **Kind of like an RFC or PEP guideline.**
-- It defines: **Expected behaviors** ,**Interfaces**, **Exporting guidelines**, **Semantic conventions** (naming keys like `http.status_code`, `db.system`, etc.)
+- **The Schema** defines *how* a <kbd>trace</kbd> or a <kbd>metric</kbd> or a <kbd>log</kbd> is structured.These data models include metadata that uniquely identifies them as a **trace, metric, or log** ,along with a flexible **attributes** section that carries the actual application or system-related data.
+- **Semantic Conventions** define how <kbd><strong>attributes</strong></kbd> should carry data with agreed-upon meanings.  
+  + While attributes can hold any key-value pairs (e.g., `{ "x": 123 }`), arbitrary keys like `"x"` are valid structurally but carry no universal semantic meaning.  
+  + In contrast, well-known semantic keys such as `"db.system": "postgres"` or `"http.status_code": 200` have specific, agreed meanings that all tools recognize.These conventions serve as **guidelines**.
+  + If we define custom attribute keys like `"my.custom.key": "value"`, our backend should understand it as Generic backends might not
+
+  >Example langfuse has its own custome attributes like `score` that the langfuse backend only undestands
+  {: .prompt-tip}
+
+  * **Example JSON Attributes (with inline comments)**
+
+    ```json
+    {
+      "attributes": [
+        { "key": "http.method", "value": { "stringValue": "GET" } },            // Semantic convention: HTTP method used
+        { "key": "http.status_code", "value": { "intValue": 200 } },           // Semantic convention: HTTP response status code
+        { "key": "db.system", "value": { "stringValue": "postgres" } },        // Semantic convention: Database system type
+        { "key": "my.custom.key", "value": { "stringValue": "custom_value" } },// Custom key, may need backend support
+        { "key": "x", "value": { "intValue": 123 } }                           // Arbitrary key, no semantic meaning
+      ]
+    }
+    ```
+    
 - Only the **OpenTelemetry specification committee** can modify these schemas  
   → This ensures **long-term stability** and **interoperability**.
 
 👉 It ensures **cross-language consistency**, but does **not act as the schema** or implementation.
 
-### Data Model — This Is the Schema
+### Data Model — This Is the Schema part implemented in protobuff {#data-model-the-proto-schema}
 
 The **Data Model** is the actual **schema** for telemetry in OpenTelemetry.
 
@@ -201,32 +234,144 @@ Supports both **gRPC** and **HTTP**.
 Efficient, binary, and supported by many major vendors like **Jaeger**, **Datadog**, **Tempo**, etc.
 It’s the “language” OpenTelemetry speaks to move telemetry around.
 
-## OTel’s Schema
+## OTel’s Standard (Schema) = Data Models (strict Schema) + Semantic Conventions {#otels-schema}
 
-In OpenTelemetry, “schemas” refer to the **official data structures** (formats, field names, and types) that telemetry data must conform to when exported or exchanged between components like SDKs, collectors, and backends.
+In OpenTelemetry, the **standard schema** consists of two key parts:
 
-They are **strictly defined and versioned** in the OpenTelemetry Protocol (OTLP) using **Protobuf files**.
+### **Strict Protocol/Data Model Schema: `trace`, `metric`, and `log`** {#strict-protocol-data-model-schema}
 
-###  These schemas define:
 [For details on below refer here]({{ site.posts | where: "slug", "openTelemetry-unified-observability-part1" | first.url | relative_url }}#otels-three-pillars-traces-metrics-logs-with-schemas)
-- The fields or keys, data types, and structure of:
-  - **Traces** – spans, attributes, timing, status, etc.  
-  - **Metrics** – gauges, counters, histograms  
-  - **Logs** – timestamped records with severity, message, etc.
-- What must be **included** (required fields)
-- What is **optional or extensible** (like `attributes[]`)
 
-**Where Are These Schemas Defined?**
+These are formally defined structures for telemetry data types like `trace`, `metric`, and `log`.  
+They are **strictly versioned and defined** in the OpenTelemetry Protocol (OTLP) using **Protobuf**, specifying exact formats, field names, and types.This is the actual data model layer
+
+**Protocol Schema = Strictly Enforced**
+- Defined in `.proto` files (`trace.proto`, `metrics.proto`, etc.).  
+- This defines how data is structured — e.g., how a telemetry payload for a `trace` or a `metric` should look like (the exact key value paiers).  
+- This is The exact structure that is transferred over HTTP/gRPC **must match** the schema defined in the `.proto` files.
+- Also defines What is **optional or extensible** (like `attributes[]`)
+
+>Example
+>```proto
+>   Smessage Span {
+>    string name = 3;
+>    repeated KeyValue attributes = 9;
+>    // ...
+> }
+>  ```
+>- So here the `Span` has `attributes`, which are just key-value pairs.
+>- **NOTE** :: 👉 If your **telemetry payload** doesn't match this `.proto` Schema, the receiving system will reject or error out.
+{: .prompt-tip}
+
+✅ The protobuf doesn't enforce http.method or db.system — you’re expected to follow the semantic conventions manually.
+
+**Where Are These protocol Schemas Defined?**
 The canonical source of truth is in the **opentelemetry-proto** repository:  
 ➡️ [https://github.com/open-telemetry/opentelemetry-proto](https://github.com/open-telemetry/opentelemetry-proto)
 
-**Key Protobuf files:**
-- `opentelemetry/proto/trace/v1/trace.proto` – Trace data (spans)  
-- `opentelemetry/proto/metrics/v1/metrics.proto` – Metrics data  
-- `opentelemetry/proto/logs/v1/logs.proto` – Log data  
-- `opentelemetry/proto/common/v1/common.proto` – Shared types (e.g., attributes)  
-- `opentelemetry/proto/resource/v1/resource.proto` – Telemetry resource data
+<details>
+  <summary><strong>Key Protobuf files: [CLICK ME]</strong></summary>
+  <div markdown="1">
 
+  - `opentelemetry/proto/trace/v1/trace.proto` – Trace data (spans)  Defines `Span`, `SpanKind`, `Event`, `Link`, etc. 
+  - `opentelemetry/proto/metrics/v1/metrics.proto` – Define the structure for metrics data  
+  - `opentelemetry/proto/logs/v1/logs.proto` – Define the structure for logs data  
+  - `opentelemetry/proto/common/v1/common.proto` – Shared types (e.g., attributes)  Defines `KeyValue`, `AnyValue`, and other shared types  
+  - `opentelemetry/proto/resource/v1/resource.proto` – Telemetry resource data  Defines `Resource`, which holds identifying attributes (e.g.,  service name) 
+
+  </div>
+</details>
+
+
+### **Semantic Conventions** {#semantic-conventions}
+These are **agreed-upon attribute keys and meanings** (e.g., `http.method`, `db.system`) used within the flexible fields like  **`attributes` inside the protocol schema** .
+They are **not enforced**, but following them ensures **consistency and interoperability** across tools and backends.
+
+**Semantic Conventions = Not Enforced, Just Agreed Upon**
+
+These are agreed attribute keys and expected value types. **rules for what attributes should be used and what they mean.**
+
+**Examples:**
+
+`http.method = "GET"`  
+`db.system = "mysql" ` 
+`cloud.region = "us-east-1"`  
+
+>🟨 we can define our own:
+>
+>```python
+>span.set_attribute("my.user_plan", "enterprise")
+>span.set_attribute("my.feature_flag_enabled", True)
+>span.set_attribute("my.latency_ms", 183)
+>
+>```
+>These attributes are sent along with the span data in the standard Protobuf/JSON format:
+>
+>```json
+>{
+>  "name": "my-span",
+>  "attributes": [
+>    { "key": "my.user_plan", "value": { "stringValue": "enterprise" }},
+>    { "key": "my.feature_flag_enabled", "value": { "boolValue": true }},
+>    { "key": "my.latency_ms", "value": { "intValue": 183 }}
+>  ]
+>}
+>```
+>- ✅ The custome ones are accepted by the SDK and backend, because they’re valid KeyValue pairs. (Valid according to the `.proto`)
+>- ❌ But not "understood" semantically or Not meaningful to OTel collectors/dashboards unless configured in tools like Jaeger, ot out own 
+{: .prompt-tip}
+
+That means (A comparision):
+
+| Tool              | Will it display your custom key? | Will it interpret it meaningfully?              |
+|-------------------|----------------------------------|-------------------------------------------------|
+| Jaeger            | ✅ Yes (raw view)                 | ❌ No (no special UI treatment)                 |
+| Grafana Tempo     | ✅ Yes (as attribute)             | ❌ No (no special filtering or panels)          |
+| Honeycomb         | ✅ Yes                            | ❌ No                                           |
+| Langfuse (if used)| ✅ Maybe                          | ✅ If you follow Langfuse semantics             |
+
+
+<details>
+
+<summary><strong>Examples of Semantic Conventions (Standard Names)</strong></summary>
+
+<div markdown="1">
+
+Here’s a mini reference of standard attribute keys (a sampling):
+
+#### HTTP Semantics
+
+| Key                    | Example              |
+|------------------------|----------------------|
+| http.method            | "POST"               |
+| http.url               | "https://..."        |
+| http.status_code       | 200                  |
+| http.request.body.size | 342                  |
+
+#### DB Semantics
+
+| Key           | Example                   |
+|---------------|---------------------------|
+| db.system     | "postgresql"              |
+| db.statement  | "SELECT * FROM users"     |
+| db.user       | "admin"                   |
+
+#### Messaging Semantics
+
+| Key                   | Example        |
+|------------------------|----------------|
+| messaging.system       | "kafka"        |
+| messaging.destination  | "user-topic"   |
+
+#### Cloud Infrastructure
+
+| Key             | Example       |
+|------------------|---------------|
+| cloud.provider   | "aws"         |
+| cloud.region     | "us-west-2"   |
+
+</div>
+</details>
 
 ### 🤔 Some Questions About OTel’s Schema — Answered {#questions-about-otel}
 
@@ -239,7 +384,9 @@ That means:
 - Data types (`stringValue`, `intValue`, etc.)
 You **cannot change these keys**.  
 Every backend (Jaeger, Tempo, Honeycomb, Langfuse) expects **exactly this structure**.
-
+> The only this that is not fixed is the `atribute` parts where we can define cusome or our own key cvalue pairs
+> Rrem : this is also defined but not enfored
+{: .prompt-tip} 
 
 ####  **What parts are your custom data?**
 
@@ -263,6 +410,7 @@ OTEL doesn’t decide this — you (or the SDK instrumentation) do.
 
 >🔥 This is where Langfuse puts its extra stuff (langfuse.observation.input/output).
 >🔥 You can add any key/value here, as long as the type is one of the allowed OTEL types (string, int, double, bool).
+> There are semantic conventions for this as well , like `db.sytem` and all but not enforced
 {: .prompt-info}
 
 #### **What Parts Are Auto-Generated?**
