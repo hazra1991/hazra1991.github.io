@@ -6,6 +6,10 @@ desc: "Learn to build, deploy, and manage containerized applications with real-w
 tags: [docker, containers, devops, tutorial]
 ---
 
+<details>
+<summary><storng>Table of content</storng></summary>
+<div markdown="1">
+
 - [What Is Docker?](#what-is-docker)
 - [Docker Ecosystem Overview](#docker-ecosystem-overview)
 - [Understanding the Basic Components](#understanding-the-basic-components)
@@ -24,7 +28,15 @@ tags: [docker, containers, devops, tutorial]
 - [Why Docker Compose?](#why-docker-compose)
 - [Key Questions on Docker Compose](#key-questions-on-docker-compose)
 - [Full Flow: Compose Build and Run](#full-flow-compose-build-and-run)
+- [Multistage Dockerfiles](#multistage-dockerfiles)
+  - [1. Normal Dockerfile behavior](#1-normal-dockerfile-behavior)
+  - [2. What happens with multiple FROM statements](#2-what-happens-with-multiple-from-statements)
+  - [3. How it applies to a Dockerfile with Example](#how-it-applies-to-a-dockerfile-with-example)
+  - [4. Build process explained Nutshell](#so-the-build-goes)
 - [Common Docker Commands](#common-docker-commands)
+
+</div>
+</details>
 
 ---
 
@@ -437,6 +449,146 @@ docker-compose up --build
 | Docker Engine    | (Core runtime that manages containers)
 +------------------+
 ```
+
+## Multistage Dockerfiles
+
+#### 1. Normal Dockerfile behavior
+Normally, a Dockerfile has one `FROM` at the top, which defines the base image. Every instruction after that builds layers on top of this base.
+**Example:**
+
+```dockerfile
+FROM debian:bookworm
+RUN apt-get update && apt-get install -y curl
+```
+
+→ That creates an image starting from Debian.
+
+---
+
+#### 2. What happens with multiple FROM statements
+When you add another `FROM`, Docker starts a **brand-new build stage**.  
+Each stage is like its own Dockerfile, but all inside one file.
+**Example:**
+
+```dockerfile
+FROM debian:bookworm AS stage1
+RUN echo "hello" > /hello.txt
+
+FROM debian:bookworm
+COPY --from=stage1 /hello.txt /root/
+```
+
+- **Stage 1 (`AS stage1`)**: builds something and stores `/hello.txt`.
+- **Stage 2**: starts fresh (a new Debian base), but we can pull artifacts from stage 1 using `COPY --from=stage1`.
+
+At the end of the build, the final image is **always from the last `FROM`** block (unless you explicitly tell Docker to stop earlier using `--target`).
+
+---
+
+### How it applies to a Dockerfile with Example
+
+<details>
+  <summary><strong>AN EXAMPLE FILE [CLICK ME]</strong></summary>
+  
+  <div markdown='1'>
+  
+  ```shell
+    FROM python:3.13.5-slim-bookworm AS build-stage
+
+    # hadolint ignore=DL3008
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        build-essential \
+        wget \
+        && rm -rf /var/lib/apt/lists/*
+
+    WORKDIR /root
+    # The following lines compile a shim to bind a process to an IP address
+    # using LD_PRELOAD. To run the shim use the following syntax:
+    # BIND_ADDR="X.X.X.X" LD_PRELOAD=/usr/lib/bind.so [command to run]
+    RUN wget -q http://daniel-lange.com/software/bind.c -O bind.c \
+        && sed -i '/#include <errno.h>/a #include <arpa\/inet.h>' bind.c \
+        && gcc -nostartfiles -fpic -shared bind.c -o bind.so -ldl -D_GNU_SOURCE \
+        && strip bind.so
+
+
+    # Debian SSH server start from here.
+    FROM python:3.13.5-slim-bookworm
+
+    LABEL maintainer="ktewari@libertyglobal.com"
+    LABEL version="1.9.2p1"
+
+    SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+    RUN echo "root:bigfoot1" | chpasswd
+
+    # hadolint ignore=DL3008
+    RUN apt-get update && apt-get install -y --no-install-recommends \
+        openssh-server \
+        iproute2 \
+        && rm -rf /var/lib/apt/lists/* \
+        && mkdir /var/run/sshd \
+        && sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config \
+        && sed -i 's/.*GatewayPorts.*/GatewayPorts yes/' /etc/ssh/sshd_config \
+        && sed -i 's/.*PermitTunnel.*/PermitTunnel yes/' /etc/ssh/sshd_config
+    EXPOSE 22/tcp
+
+    # Copy bind.so shared library from previous stage.
+    COPY --from=build-stage /root/bind.so /usr/lib/
+    COPY isolate_docker_iface /usr/bin/
+
+    ENV TIMEOUT 60
+
+    CMD ["/usr/sbin/sshd", "-D"]
+  ```
+  {: file="Dockerfile"}
+  
+  </div>
+</details>
+
+Your Dockerfile has **two stages**:
+
+#### Stage 1 (AS `build-stage`)
+
+```dockerfile
+FROM python:3.13.5-slim-bookworm AS build-stage
+# compiles bind.so
+```
+
+Used only to **build the `bind.so` shared library**.
+
+> This stage **won’t be kept** in the final image (so the extra compiler tools don’t bloat your SSH server image).
+
+---
+
+#### Stage 2 (final image)
+
+```dockerfile
+FROM python:3.13.5-slim-bookworm
+# installs openssh-server, configures root login
+COPY --from=build-stage /root/bind.so /usr/lib/
+```
+
+This is the **real final image** you’ll run (`python:3.13.5-slim-bookworm` + SSH server).
+
+It grabs **only the `bind.so` file** from stage 1, nothing else.
+
+---
+
+<span id="so-the-build-goes"></span>
+**So the build goes:**
+
+1. Docker builds **stage 1** completely.
+2. Then builds **stage 2** (the final image).
+3. **Final result = stage 2 image.**
+
+---
+
+>Which FROM does the build “start” from?
+>- ✅ **Always starts from the first `FROM`** (stage 1).  
+>- Then continues through all stages in order until the final one.
+>- 👉 Think of multi-stage builds as:
+>  - **Stage 1**: scratch pad (compile, build tools, extra stuff).
+>  - **Stage 2**: clean final image, only copy in what you really need.
+{: .prompt-tip}
 
 ## Common Docker Commands
 
