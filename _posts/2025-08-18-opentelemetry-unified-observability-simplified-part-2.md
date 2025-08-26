@@ -2,13 +2,15 @@
 layout: post  
 title: "OpenTelemetry (OTel): Unified Observability, Simplified (Part 2)"
 date: 2025-08-18
-categories: ['tutorial','OpenTelemetry (OTel)']
+categories: ['Tutorial','OpenTelemetry (OTel)']
 tags: ['OTel','telemetry',tutorial]
 slug: openTelemetry-unified-observability-part2
 image:
   path: assets/images/covers/opentelemetry_banner.webp
   alt: OpenTelemetry (OTel) components
 ---
+
+[To get understanding on html/css click here]({{ site.posts | where: "slug", "html-css-and-javascript-overview" | first.url | relative_url }})
 
 <details>
   <summary><strong>Table of Contents</strong></summary>

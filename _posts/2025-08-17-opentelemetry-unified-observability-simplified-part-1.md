@@ -2,7 +2,7 @@
 layout: post  
 title: "OpenTelemetry (OTel): Unified Observability, Simplified (Part 1)"
 date: 2025-08-17
-categories: ['tutorial','OpenTelemetry (OTel)']
+categories: ['Tutorial','OpenTelemetry (OTel)']
 tags: ['OTel','telemetry',tutorial]
 slug: openTelemetry-unified-observability-part1
 image:
