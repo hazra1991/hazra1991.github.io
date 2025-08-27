@@ -53,9 +53,9 @@ image:
         <summary>Click to expand</summary>
         <div markdown="1">
       
-        - [Linking direct urls](#linking-direct-urls)
-        - [Linking sections and url dynamically](#linking-sections-urls-dynamically)
         - [Linking sections in same file](#linking-sections-samefile)
+        - [Linking sections and url dynamically](#linking-sections-urls-dynamically)        
+        - [Linking direct urls](#linking-direct-urls)
 
         </div>
         </details>
@@ -723,6 +723,9 @@ or any special name is forced ::-  check -- [Bonus: Manually add a custom anchor
 
 # POST URL SECTIONS (different)
 [Go to Installation]({{ site.posts | where: "slug", "my-post" | first.url | relative_url }}#installation)
+
+# Can also be done directly via href in html tags inside the Md file (Here target is for opening in new tab)
+<a href="{{ site.posts | where: "slug", "openTelemetry-unified-observability-part1" | first.url | relative_url }}" target = "_blank">OpenTelemetry part 2</a>
 
 ```
 {% endraw %}
