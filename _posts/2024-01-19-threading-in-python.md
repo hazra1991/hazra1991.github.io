@@ -193,6 +193,80 @@ alarm.start()
 time.sleep(3)
 print("Main process still running...")
 ```
+---
+
+## threading.local() ? {#threading-local-storage}
+
+It creates an object where each thread can store and access its own attributes without interfering with other threads.
+
+```python
+import threading
+import time
+
+# Create thread-local storage
+local_context = threading.local()
+
+def worker(id):
+    setattr(local_context ,threading.current_thread().name,f"Thread-{id}-data")
+    # local_context.value = f"Thread-{id}-data"      or use this way
+    time.sleep(2)
+    print(local_context.__dict__)
+    # print(f"[{threading.current_thread().name}] value = {thread_local_data.value}")
+
+threads = []
+
+for i in range(3):
+    t = threading.Thread(target=worker, args=(i,))
+    threads.append(t)
+    t.start()
+setattr(local_context ,threading.current_thread().name,f"This is main thread")
+
+print(local_context.__dict__)
+
+for t in threads:
+    t.join()
+```
+
+>Each thread sees its own value, even though it's using the same thread_local_data object. Under the hood, threading.local() manages this separation.
+{: .prompt-tip}
+
+**Why Use `threading.local()`?**
+
+- Avoids **global state conflicts**
+- Each thread gets its **own isolated data**
+
+Very useful in:
+
+- ✅ Logging contexts  
+- ✅ Request/response data in threaded servers  
+- ✅ Database session management per thread  
+
+---
+
+#### ✅ When NOT to Use It
+
+- ❌ In async code (like `asyncio`) → use `contextvars` instead  
+- ❌ If your workload is not thread-based (e.g., uses `multiprocessing`)  
+
+---
+
+⚠️ **Notes**
+
+- `threading.local()` is **not a dictionary** — you assign attributes to it:
+
+  ```python
+    import threading
+
+    local_data = threading.local()
+    local_data.user_id = 123
+    setattr(local_data,"user_id",123)
+    # Both ways are possible
+  ```
+
+- Don't use threading.local() in async code — it will leak data between coroutines.
+- contextvars is available from Python 3.7+.
+- If you're doing both threads and async (e.g., using asyncio inside threads), you'll need to understand both tools and how they interact.
+- You cannot share data between threads with it — that defeats the purpose.
 
 ---
 
