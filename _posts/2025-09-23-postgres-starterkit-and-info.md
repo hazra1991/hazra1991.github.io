@@ -24,6 +24,12 @@ slug: postgres-starterkit-and-info
 11. [Does this affect shell access or system users?](#does-this-affect-shell-access-or-system-users)
 12. [What about the `postgres` user?](#what-about-the-postgres-user)
 13. [Connect from Remote Client](#connect-from-remote-client)
+14. [PostgreSQL Command Cheat Sheet (via `psql`)](#cheetsheet)
+    - [Meta-Commands in `psql` (start with a backslash `\`)](#meta-commands)
+    - [SQL Commands (Standard SQL)](#sql-commands)
+    - [Viewing Information](#viewing-info)
+15. [Export and Import Data](#export-import)
+16. [Bonus: Quick DB Inspection Script](#bonus)
 
 </div>
 </details>
@@ -212,4 +218,108 @@ psql -h <server_ip> -U <db_user> -d <db_name>
 # Example:
 
 psql -h 203.0.113.20 -U myuser -d mydb
+```
+
+## PostgreSQL Command Cheat Sheet (via `psql`) {#cheetsheet}
+
+```bash
+sudo -u postgres psql
+# Or, if you're using a specific DB/user:
+psql -U myuser -d mydb
+```
+
+##### 📋 Meta-Commands in `psql` (start with a backslash `\`) {#meta-commands}
+
+These are **not SQL**, they are **`psql`-specific** commands to inspect the database.
+
+| Command         | Meaning                                               |
+|----------------|--------------------------------------------------------|
+| `\l` or `\list` | List all databases                                     |
+| `\c dbname`     | Connect to a database                                  |
+| `\dt`           | List all tables in the current schema                  |
+| `\d tablename`  | Describe a table (columns, types, constraints)         |
+| `\du`           | List users and their roles                             |
+| `\dn`           | List all schemas                                       |
+| `\df`           | List functions                                         |
+| `\dv`           | List views                                             |
+| `\x`            | Toggle expanded output (like vertical mode)           |
+| `\q`            | Quit `psql`                                            |
+| `\?`            | Show help for `psql` commands                          |
+| `\h`            | SQL syntax help (e.g., `\h CREATE TABLE`)              |
+| `\?`            | Show psql command help              |
+
+---
+
+##### 🗄️ SQL Commands (Standard SQL) {#sql-commands}
+
+You can run these inside `psql` or in SQL scripts.
+
+🔧 Database Management
+
+| Command                          | Purpose                   |
+|----------------------------------|---------------------------|
+| `CREATE DATABASE mydb;`          | Create a new database     |
+| `DROP DATABASE mydb;`            | Delete a database         |
+| `\c mydb`                        | Switch to a database      |
+| `\conninfo`                      | Show current connection info |
+
+---
+
+👤 User / Role Management
+
+| Command                                                     | Purpose                     |
+|-------------------------------------------------------------|-----------------------------|
+| `CREATE USER myuser WITH PASSWORD 'mypassword';`            | Create a new user           |
+| `DROP USER myuser;`                                         | Delete a user               |
+| `ALTER USER myuser WITH PASSWORD 'newpass';`                | Change a user's password    |
+| `GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;`          | Grant access to a DB        |
+| `REVOKE ALL PRIVILEGES ON DATABASE mydb FROM myuser;`       | Remove access               |
+
+---
+
+📦 Table Management
+
+| Command                                      | Purpose             |
+|----------------------------------------------|---------------------|
+| `CREATE TABLE mytable (...);`                | Create a new table  |
+| `DROP TABLE mytable;`                        | Delete a table      |
+| `ALTER TABLE mytable ADD COLUMN newcol TYPE;`| Add a column        |
+| `SELECT * FROM mytable;`                     | Show all data       |
+| `\d mytable`                                 | Describe table      |
+
+---
+
+##### 🔍 Viewing Information {#viewing-info}
+
+| Task                    | Command                                  |
+|-------------------------|------------------------------------------|
+| List all databases      | `\l`                                     |
+| List all tables         | `\dt`                                    |
+| Show table schema       | `\d tablename`                           |
+| Show current user       | `SELECT current_user;` or `\conninfo`    |
+| Show privileges         | `\z` or `\dp`                            |
+| Show running queries    | `SELECT * FROM pg_stat_activity;`        |
+
+
+### ⚡ Export and Import Data {#export-import}
+
+**Export a table to CSV:**
+
+```sql
+\COPY mytable TO '/tmp/mytable.csv' WITH CSV HEADER;
+```
+**Import from CSV:**
+
+```sql
+\COPY mytable FROM '/tmp/mytable.csv' WITH CSV HEADER;
+```
+
+#### 🧪 Bonus: Quick DB Inspection Script {#bonus}
+Run this in psql for a quick look at table sizes:
+
+```sql
+SELECT relname AS table, 
+       pg_size_pretty(pg_total_relation_size(relid)) AS size
+FROM pg_catalog.pg_statio_user_tables
+ORDER BY pg_total_relation_size(relid) DESC;
 ```
