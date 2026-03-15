@@ -15,6 +15,7 @@ tags: [redis, database, caching, backend]
    - [Important clarification](#important-clarification)  
 4. [Installing and Using Redis](#installing-and-using-redis)  
    - [Installing Redis](#installing-redis)  
+   - [Redis Get Data Cheatsheet](#resdis-getdata)
    - [Do you need to start it every time?](#do-you-need-to-start-it-every-time)  
    - [Where Redis config is stored](#where-redis-config-is-stored)  
    - [Important beginner mistake](#important-beginner-mistake)  
@@ -95,7 +96,7 @@ Result:
 - Inconsistent data
 - More database queries
 
-## Redis Data Structures
+## Redis Data Structures (how data is strored) {#redis-data-structures}
 
 Redis is often described as a key–value store, but the value is not limited to a string.  
 It can store richer data structures like lists, sets, hashes, and streams, making it useful for many use cases beyond simple caching.
@@ -123,6 +124,51 @@ For example:
 - **Hash** → field–value pairs (similar to dictionaries)  
 - **Sorted Set** → unique values ordered by score  
 - **Stream** → append-only log for events
+
+#### Redis: Get Data Cheatsheet {#resdis-getdata}
+
+Check key type first with **`TYPE key`**
+> note the key is always a string and the values van be dirrect . string, list . objects/hashes.streams etc.
+
+```
+# Strings
+GET key
+
+# Hashes
+HGET key field
+HGETALL key
+
+# Lists
+LRANGE key 0 -1
+LINDEX key index
+
+# Sets
+SMEMBERS key
+SISMEMBER key value
+
+# Sorted Sets
+ZRANGE key 0 -1
+ZREVRANGE key 0 -1 WITHSCORES
+
+# Streams
+XRANGE key - +
+
+# Key utilities
+KEYS *
+EXISTS key
+TTL key
+```
+
+### Quick rule
+
+| Type | Read Command |
+|-----|-------------|
+| String | GET |
+| Hash | HGET / HGETALL |
+| List | LRANGE |
+| Set | SMEMBERS |
+| Sorted Set | ZRANGE |
+| Stream | XRANGE |
 
 
 ---
