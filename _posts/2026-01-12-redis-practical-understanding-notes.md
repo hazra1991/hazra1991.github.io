@@ -13,7 +13,9 @@ tags: [redis, database, caching, backend]
 2. [Why Not Just Use a Python Dictionary?](#why-not-just-use-a-python-dictionary)  
 3. [Redis Data Structures](#redis-data-structures)  
    - [Important clarification](#important-clarification)  
-4. [Installing and Using Redis](#installing-and-using-redis)  
+4. [Redis “databases” (the /0, /1, etc.)](#Redisdatabase)
+   - [Connecting using redis-cli](#rediscli)
+5. [Installing and Using Redis](#installing-and-using-redis)  
    - [Installing Redis](#installing-redis)  
    - [Redis Get Data Cheatsheet](#resdis-getdata)
    - [Do you need to start it every time?](#do-you-need-to-start-it-every-time)  
@@ -21,8 +23,8 @@ tags: [redis, database, caching, backend]
    - [Important beginner mistake](#important-beginner-mistake)  
    - [Does Redis have users/passwords?](#does-redis-have-userspasswords)  
    - [Modern Redis user system (ACL)](#modern-redis-user-system-acl)   
-5. [Network Cost vs Database Cost](#network-cost-vs-database-cost-does-calling-redis-adds-nw-overhead)  
-6. [Redis as a Shared Cache](#redis-as-a-shared-cache)  
+6. [Network Cost vs Database Cost](#network-cost-vs-database-cost-does-calling-redis-adds-nw-overhead)  
+7. [Redis as a Shared Cache](#redis-as-a-shared-cache)  
 </div>
 </details>
 
@@ -170,6 +172,43 @@ TTL key
 | Sorted Set | ZRANGE |
 | Stream | XRANGE |
 
+
+---
+
+### Redis “databases” (the /0, /1, etc.) {#Redisdatabase}
+
+Redis is not like PostgreSQL/MySQL with real isolated databases.
+Instead, it has logical partitions inside one instance.
+
+>Default: `Redis has 16 databases: 0, 1, 2, ..., 15`
+> When you see:
+>   * redis://localhost:6379/0 👉 /0 = database index 0
+>   * redis://localhost:6379/1 👉 /1 = database index 1
+>
+>here **Keys are separated (separate namespace)** , **Same Redis server**, **Same memory**, **Same performance**
+>**Note::--  this is a redis url standard format  : redis://[:password]@host:port/db_number**
+{: .prompt-info}
+
+```markdown
+Example:
+DB 0:
+SET user:1 "Alice"
+
+DB 1:
+GET user:1 → (nil)
+```
+
+#### Connecting using redis-cli {#rediscli}
+🔹 Redis CLI Connections
+
+| Type            | Command                                                      |
+|-----------------|--------------------------------------------------------------|
+| Basic           | redis-cli                                                    |
+| DB 1            | redis-cli -n 1                                               |
+| URL (DB 2)      | redis-cli -u redis://localhost:6379/2                        |
+| Password        | redis-cli -a mypassword                                      |
+| URL + Password  | redis-cli -u redis://:mypassword@localhost:6379/0            |
+| Remote Server   | redis-cli -h 192.168.1.10 -p 6379                            |
 
 ---
 
