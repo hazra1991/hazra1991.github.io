@@ -52,6 +52,9 @@ GRANT ALL PRIVILEGES ON DATABASE myappdb TO myappuser;
 ```
 > The above and other are explained below.
 
+> `GRANT ALL PRIVILEGES ON DATABASE` only covers the database itself (connect, create, temp). It does not let the user read tables. How to grant that properly: [PostgreSQL Privileges: How Access Works, and a Cheat Sheet]({{ site.posts | where: "slug", "postgres-privileges-cheat-sheet" | first.url | relative_url }}).
+{: .prompt-tip}
+
 ## Install PostgreSQL and contrib
 
 ```bash
