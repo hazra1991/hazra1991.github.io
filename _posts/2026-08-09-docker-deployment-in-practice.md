@@ -42,7 +42,7 @@ Part 1 of the series covers *how to use* Docker. This part covers what happens o
 
 ---
 
-## The setup these notes are about
+## **The setup these notes are about**
 
 Every section below refers to some part of these two files. They're simplified, but every line that matters is here, so you can come back to them while reading.
 
@@ -102,7 +102,7 @@ services:
 
 ---
 
-## 0. The one principle that explains everything
+## **0. The one principle that explains everything**
 
 > **The image = your code + dependencies (immutable, rebuildable).
 > Everything that is data, state, config, or large external assets lives
@@ -113,7 +113,7 @@ Every decision below follows from it.
 
 ---
 
-## 1. What goes in the image vs. what is mounted
+## **1. What goes in the image vs. what is mounted**
 
 | Thing            | In image? | Why |
 |------------------|-----------|-----|
@@ -130,11 +130,11 @@ The mental model:
 
 ---
 
-## 2. Bind mounts vs. named volumes
+## **2. Bind mounts vs. named volumes**
 
 There are two kinds of mounts. This project uses **bind mounts**.
 
-### Bind mount (what we use)
+### **Bind mount (what we use)**
 ```yaml
 volumes:
   - ./artifacts:/app/artifacts      # HOST path : CONTAINER path
@@ -143,7 +143,7 @@ volumes:
 - You can `cd`, `cat`, `git`-ignore, edit the files directly. They're real files on the host.
 - **This is why UID matching matters** (see [§3](#3-uid--gid-matching-the-permission-denied-fix)): files land on the host owned by a numeric UID.
 
-### Named volume (the alternative)
+### **Named volume (the alternative)**
 ```yaml
 volumes:
   - artifacts-data:/app/artifacts   # NAME : CONTAINER path (no ./)
@@ -155,14 +155,14 @@ volumes:
 > **Why named volumes "just work":** when an empty named volume is mounted for the first time, Docker copies the contents **and ownership** of that directory from the image into the volume. If the image's `/app/artifacts` is owned by `app`, so is the volume. A bind mount does no such copying. The host folder wins, with whatever owner it already has.
 {: .prompt-tip}
 
-### Trade-off
+### **Trade-off**
 | | Bind mount | Named volume |
 |---|---|---|
 | See/edit files directly | ✅ | ❌ (managed by Docker) |
 | UID matching needed | ✅ yes | ❌ no |
 | Best for | configs, dev, inspecting output | opaque persistent state |
 
-### In production
+### **In production**
 Both are used. It depends on the data's role:
 - **configs/** → bind mount, or config manager (K8s ConfigMaps, Docker secrets, env).
 - **.models/** → bind mount (read-only), shared NFS, or pulled from object storage (S3) at startup. Never baked into the image.
@@ -175,9 +175,9 @@ Both are used. It depends on the data's role:
 
 ---
 
-## 3. UID / GID matching (the "permission denied" fix)
+## **3. UID / GID matching (the "permission denied" fix)**
 
-### Why it's needed (and NOT a hack)
+### **Why it's needed (and NOT a hack)**
 It has a name: the **UID/GID mapping problem** with bind mounts.
 - The Linux **kernel is shared** between host and container: one kernel, one set of numeric UIDs.
 - A file stores a **number** (UID), not a username. Your login name is just a label the host's `/etc/passwd` maps to a number.
@@ -200,13 +200,13 @@ So matching the numbers is the *correct* fix. Heavier alternatives:
 
 For a box where you want to read `./artifacts` and `./reports` directly as yourself, UID-matching is the normal, recommended choice.
 
-### How to find your IDs
+### **How to find your IDs**
 ```bash
 id
 # e.g. uid=<your-uid>(<your-user>) gid=<your-gid>(<your-group>)
 ```
 
-### How to apply them
+### **How to apply them**
 Set in `.env` (compose forwards these as build args; how that works is in [§5](#5-arg--defaults-not-hardcoding)):
 ```dotenv
 APP_USER_ID=<your-uid>     # from `id -u`
@@ -224,7 +224,7 @@ docker compose up --build -d
 
 ---
 
-## 4. The non-root `app` user — where it's defined
+## **4. The non-root `app` user — where it's defined**
 
 The container runs as a non-root user `app`. It is **created inside the Dockerfile**:
 
@@ -250,7 +250,7 @@ radius (especially with mounts). Running non-root is a Docker best practice.
 
 ---
 
-## 5. `ARG` — defaults, NOT hardcoding
+## **5. `ARG` — defaults, NOT hardcoding**
 
 ```dockerfile
 ARG BUILD_HTTPS_PROXY        # NO default → empty "" unless --build-arg is passed
@@ -279,7 +279,7 @@ The `1000` only applies if you forget to set it.
 
 ---
 
-## 6. Proxy handling — why the `BUILD_` prefix
+## **6. Proxy handling — why the `BUILD_` prefix**
 
 ```dockerfile
 ARG BUILD_HTTPS_PROXY
@@ -299,7 +299,7 @@ ENV https_proxy=$BUILD_HTTPS_PROXY HTTPS_PROXY=$BUILD_HTTPS_PROXY ...
 > **Why not Docker's built-in proxy args?** Docker has *predefined* build args (`HTTP_PROXY`, `HTTPS_PROXY`, `NO_PROXY`, `FTP_PROXY`, `ALL_PROXY` and their lowercase forms). You can pass them with `--build-arg` without declaring an `ARG`, and they're kept out of `docker history`. With a normal base image that's the simplest route. Here it doesn't help: the base image's empty `ENV https_proxy=""` wins over an arg with the same name, which is exactly the shadowing above.
 {: .prompt-info}
 
-### Consequence for manual builds
+### **Consequence for manual builds**
 `docker build` must use the **prefixed** names, or they're silently ignored
 (→ `uv sync` can't reach the internal index → build fails):
 ```bash
@@ -319,7 +319,7 @@ The proxy is also cleared at the end of the Dockerfile (`ENV https_proxy="" ...`
 
 ---
 
-## 7. Memory limits — compose vs. swarm
+## **7. Memory limits — compose vs. swarm**
 
 `docker-compose.yaml` often contains **both** key sets, kept consistent:
 
@@ -348,7 +348,7 @@ Analogy:
 - **Compose** = a car engine running in one garage.
 - **Swarm** = a fleet manager coordinating cars across many garages.
 
-### Same file, different fields read
+### **Same file, different fields read**
 
 | Key | Read by | Meaning |
 |-----|---------|---------|
@@ -382,7 +382,7 @@ docker stats --no-stream        # the "MEM USAGE / LIMIT" column shows the limit
 
 ---
 
-## 8. Docker permissions (sudo / docker group)
+## **8. Docker permissions (sudo / docker group)**
 
 If you get `permission denied ... /var/run/docker.sock` without sudo, your user
 isn't in the `docker` group.
@@ -396,7 +396,7 @@ isn't in the `docker` group.
 
 ---
 
-## 9. Custom base images
+## **9. Custom base images**
 
 `FROM py314-uv:latest` is a **custom base image** that is not on any registry. Docker can't pull it, so it has to exist locally before the build:
 ```bash
@@ -415,7 +415,7 @@ docker build -t py314-uv:latest py314-uv/
 
 ---
 
-## 10. Deploy sequence (single host)
+## **10. Deploy sequence (single host)**
 
 ```bash
 # 1. host dirs for the mounts
@@ -442,7 +442,7 @@ curl http://localhost:9090/health    # host 9090 -> container 8080
 > Create the mount directories **before** the first `up`. If a bind-mount source doesn't exist, Docker creates it **as root**, and the non-root `app` user then can't write into it.
 {: .prompt-warning}
 
-### Common operations
+### **Common operations**
 ```bash
 docker compose restart my-app
 docker compose down                  # stop + remove container (mounts persist)
@@ -452,7 +452,7 @@ docker compose logs --tail=100 my-app
 
 ---
 
-## 11. Quick facts
+## **11. Quick facts**
 
 - **Port mapping:** host **9090** → container **8080**. How that works, and why the app binds `0.0.0.0`, is covered in [Networking Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}).
 - **Single worker on purpose:** the generate-lock lives in process memory; multiple

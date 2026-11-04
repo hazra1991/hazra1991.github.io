@@ -1,0 +1,68 @@
+// ---
+// ---
+
+// /* prettier-ignore */
+// @use 'main
+// {%- if jekyll.environment == 'production' -%}
+//   .bundle
+// {%- endif -%}
+// ';
+
+// /* ======================================================================
+//    CUSTOM STYLES  (everything below overrides the theme)
+//    This whole file is the only thing you edit for look & feel.
+//    Delete a block to go back to the theme default for that bit.
+//    ====================================================================== */
+
+// /* 1. FONTS ------------------------------------------------------------
+//    Chirpy only *names* Source Sans Pro / Lato; it doesn't load them.
+//    Import real webfonts here, then point the theme's families at them.
+//    (Remove this @import + the two font-family lines to keep system fonts.) */
+// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@600;700&display=swap');
+
+// body {
+//   font-family: 'Inter', 'Source Sans Pro', sans-serif;   /* body text */
+// }
+
+// h1, h2, h3, h4, h5, h6 {
+//   font-family: 'Lora', Lato, serif;                      /* headings */
+// }
+
+// /* 2. BODY TEXT SIZE & SPACING ----------------------------------------
+//    Post reading text. Theme default: 1.08rem, line-height 1.75. */
+// .content {
+//   font-size: 1.05rem;
+//   line-height: 1.8;        /* a touch more breathing room between lines */
+// }
+
+// .content p {
+//   margin-bottom: 1.1rem;   /* space between paragraphs */
+// }
+
+// /* 3. HEADINGS --------------------------------------------------------
+//    Weight + space above/below. You already bolded the markdown text;
+//    this also controls spacing so sections feel separated. */
+// .content h2 {
+//   font-weight: 700;
+//   margin: 2.75rem 0 1.25rem;
+// }
+
+// .content h3 {
+//   font-weight: 700;
+//   margin: 2rem 0 0.9rem;
+// }
+
+// /* 4. CONTENT WIDTH (optional) ----------------------------------------
+//    The reading column. Theme default is wide (1250px incl. sidebar).
+//    Uncomment to make long text lines shorter / easier to read. */
+// /*
+// #main-wrapper .container {
+//   max-width: 1100px;
+// }
+// */
+
+// /* 5. CODE BLOCKS (optional) ------------------------------------------
+//    Slightly larger mono text. Theme default is 0.85rem. */
+// .content pre code {
+//   font-size: 0.86rem;
+// }

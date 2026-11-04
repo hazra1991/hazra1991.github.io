@@ -58,7 +58,7 @@ A no-black-box reference. Read this top to bottom once and the whole thing click
 
 ---
 
-## 1. What problem does systemd solve? {#sec-1}
+## **1. What problem does systemd solve?** {#sec-1}
 
 Think about what happens when your Ubuntu machine boots up. Dozens of things need to start: the networking stack, the SSH server so you can log in remotely, Docker, your display manager, time synchronization, and so on. Somebody has to orchestrate all of that — decide what starts first, what depends on what, restart things that crash, and collect their logs.
 
@@ -71,7 +71,7 @@ Before systemd existed, Linux used simple shell scripts (called "init scripts") 
 
 ---
 
-## 2. What is a "service"? {#sec-2}
+## **2. What is a "service"?** {#sec-2}
 
 A "service" is just systemd's word for a long-running background process — what Unix people traditionally call a **daemon**.
 
@@ -92,11 +92,11 @@ by hand in a terminal, it works — but the moment you close that terminal or lo
 
 ---
 
-## 3. What is a `.service` file? {#sec-3}
+## **3. What is a `.service` file?** {#sec-3}
 
 A `.service` file is just a **plain-text configuration file** — nothing more. It is not a script, it is not compiled code, it is not an application. It is a *declarative description* that tells systemd: here is the command to run, here is which user to run it as, here is what it depends on, and here is what to do if it fails. That's the entire idea.
 
-### Example: `devicehub-api.service` {#sec-3-1}
+### **Example: `devicehub-api.service`** {#sec-3-1}
 
 Located at `/etc/systemd/system/devicehub-api.service`:
 
@@ -116,7 +116,7 @@ Restart=on-failure
 WantedBy=multi-user.target
 ```
 
-### What each section means {#sec-3-2}
+### **What each section means** {#sec-3-2}
 
 **`[Unit]` — metadata.**
 - `Description` is a human-readable label (this is the "Devicehub FastAPI Backend" you see in `systemctl status` output).
@@ -134,7 +134,7 @@ WantedBy=multi-user.target
 
 ---
 
-## 4. Where do `.service` files live, and how does systemd find them? {#sec-4}
+## **4. Where do `.service` files live, and how does systemd find them?** {#sec-4}
 
 systemd looks in **specific directories**, and the location matters because it determines **priority**. There are three main places:
 
@@ -146,7 +146,7 @@ systemd looks in **specific directories**, and the location matters because it d
 
 When you ran `sudo apt install nginx`, the nginx package dropped `nginx.service` into `/usr/lib/systemd/system/`. Your `devicehub-api.service` sits in `/etc/systemd/system/` because it's *your* app.
 
-### The two hard rules {#sec-4-1}
+### **The two hard rules** {#sec-4-1}
 
 1. **The file must end in `.service`.** That's how systemd knows it describes a service, as opposed to a `.timer`, `.socket`, `.mount`, or other unit type.
 2. **It must be in one of these directories** for systemd to find it. You can't just put a `.service` file in your home directory and expect it to work.
@@ -155,7 +155,7 @@ The filename, minus the `.service` extension, becomes the **unit name** you use 
 
 ---
 
-## 5. Name collisions & priority {#sec-5}
+## **5. Name collisions & priority** {#sec-5}
 
 **The filename *is* the identity.**
 
@@ -170,7 +170,7 @@ Within the *same* directory you simply cannot have two files with the same name 
 
 ---
 
-## 6. What is `systemctl`? {#sec-6}
+## **6. What is `systemctl`?** {#sec-6}
 
 If systemd is the **engine**, `systemctl` is the **steering wheel**. It's the command-line tool you use to talk to systemd.
 
@@ -186,7 +186,7 @@ If systemd is the **engine**, `systemctl` is the **steering wheel**. It's the co
 > **Why `daemon-reload` exists:** systemd caches unit file contents in memory. After editing a service file (or a drop-in), you must run `daemon-reload` before the change takes effect.
 {: .prompt-info}
 
-### How `enable` really works (the symlink) {#sec-6-1}
+### **How `enable` really works (the symlink)** {#sec-6-1}
 
 `systemctl enable` creates a symlink from `multi-user.target.wants/devicehub-api.service` back to your service file. That symlink is how systemd knows *"when I reach multi-user.target during boot, I should also start devicehub-api."*
 
@@ -194,7 +194,7 @@ Those `*.target.wants/` directories you see (like `multi-user.target.wants/`, `s
 
 ---
 
-## 7. `enable` vs `start` vs `--now` {#sec-7}
+## **7. `enable` vs `start` vs `--now`** {#sec-7}
 
 This trips everyone up, so here it is cleanly:
 
@@ -225,7 +225,7 @@ sudo systemctl disable --now devicehub-api.service   # stop now AND remove from 
 
 ---
 
-## 8. How this all ties together: the nginx reverse-proxy picture {#sec-8}
+## **8. How this all ties together: the nginx reverse-proxy picture** {#sec-8}
 
 Here's what you actually set up, conceptually:
 
@@ -248,7 +248,7 @@ Both nginx and devicehub are just **two background processes systemd babysits**:
 
 ---
 
-## 9. Is creating a `.service` file "installing an application"? {#sec-9}
+## **9. Is creating a `.service` file "installing an application"?** {#sec-9}
 
 **No.** Creating a `.service` file does not install anything.
 
@@ -268,7 +268,7 @@ For *your own* apps you do those two steps separately: put your code somewhere, 
 
 ---
 
-## 10. Keeping your `.service` file in your own repo (the symlink trick) {#sec-10}
+## **10. Keeping your `.service` file in your own repo (the symlink trick)** {#sec-10}
 
 You can keep your `.service` file inside your project repository (so it's **version-controlled alongside your code**) and symlink it into `/etc/systemd/system/`.
 
@@ -296,7 +296,7 @@ chronyd.service -> /usr/lib/systemd/system/chrony.service
 
 Same mechanism — here the package manager uses it to create aliases (e.g. making `sshd.service` point to `ssh.service`).
 
-### Can you point systemd at arbitrary custom directories? {#sec-10-1}
+### **Can you point systemd at arbitrary custom directories?** {#sec-10-1}
 
 **No.** systemd scans a *fixed* set of directories (`/etc/systemd/system/`, `/usr/lib/systemd/system/`, `/run/systemd/system/`, and a few others). There is no config option to add, say, `/home/user01/my-services/`. **The symlink approach is the intended solution** for keeping the file wherever you want while still having systemd see it.
 
@@ -310,17 +310,17 @@ Two related tools:
 
 ---
 
-## 11. Drop-in overrides — customizing a package's service *without* editing its file {#sec-11}
+## **11. Drop-in overrides — customizing a package's service *without* editing its file** {#sec-11}
 
 This is one of the most useful systemd features. Example comes straight from Docker on your machine.
 
-### The problem drop-ins solve {#sec-11-1}
+### **The problem drop-ins solve** {#sec-11-1}
 
 Docker's service file lives at `/usr/lib/systemd/system/docker.service` and is **owned by the Docker package**. Every `apt upgrade` that updates Docker **overwrites** that file. So if you edited it directly to add proxy settings or change `ExecStart`, your changes get wiped on the next update.
 
 You need a way to customize a package's service **without touching the package's own file.** That's what drop-ins are for.
 
-### What a drop-in actually is {#sec-11-2}
+### **What a drop-in actually is** {#sec-11-2}
 
 A drop-in is a small `.conf` file in a specially-named directory next to the service, which systemd **automatically merges on top of** the original `.service` file.
 
@@ -342,7 +342,7 @@ Inside that directory, **any file ending in `.conf`** gets picked up. The filena
 
 Both are merged on top of `/usr/lib/systemd/system/docker.service`.
 
-### How does systemd know to look? Is it automatic? {#sec-11-3}
+### **How does systemd know to look? Is it automatic?** {#sec-11-3}
 
 **Yes — completely automatic. There is no "register this drop-in" step.** When systemd loads a unit, it builds the final configuration by scanning a fixed set of locations **in order**, using the directory-naming convention to know what belongs to what. For `docker.service` it looks for `docker.service.d/` in each standard location:
 
@@ -363,7 +363,7 @@ Drop-In: /etc/systemd/system/docker.service.d
 
 This merge happens every time the unit loads — at boot, and whenever you run `systemctl daemon-reload`.
 
-### Merging vs overriding — the tricky part (`ExecStart`) {#sec-11-4}
+### **Merging vs overriding — the tricky part (`ExecStart`)** {#sec-11-4}
 
 Most directives are **replaceable**: if your drop-in sets a value, it replaces the original. (Set `Restart=on-failure` in a drop-in and it beats the original `Restart=always`.)
 
@@ -393,7 +393,7 @@ For reference, the package's original `docker.service` `[Service]` default was:
 ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 ```
 
-### The easy way to create a drop-in {#sec-11-5}
+### **The easy way to create a drop-in** {#sec-11-5}
 
 Don't hand-create the directory. systemd does it for you:
 
@@ -408,7 +408,7 @@ This automatically:
 
 A conventionally-named file like `http-proxy.conf` is usually created by hand or by a provisioning script, since that's the common name people give proxy-specific settings.
 
-### Don't forget to apply it {#sec-11-6}
+### **Don't forget to apply it** {#sec-11-6}
 
 After adding/changing any drop-in **by hand**:
 
@@ -422,11 +422,11 @@ sudo systemctl restart docker     # apply the new ExecStart to the running proce
 
 ---
 
-## 12. Service types (`Type=`) — simple, oneshot, notify, and the default rule {#sec-12}
+## **12. Service types (`Type=`) — simple, oneshot, notify, and the default rule** {#sec-12}
 
 Every `[Service]` has a `Type=`. It answers one question: **"How does systemd decide the service has finished starting?"** Different kinds of programs "become ready" in different ways, so systemd needs to know which readiness model to use. Get this wrong and systemd's idea of "started/active" won't match reality.
 
-### What is the default if you omit `Type=`? {#sec-12-1}
+### **What is the default if you omit `Type=`?** {#sec-12-1}
 
 A natural question: the devicehub and nginx files don't all spell out a `Type=`, so is the default `simple`? **Almost — but the real rule has a twist:**
 
@@ -441,7 +441,7 @@ So "no Type line = simple" is true *only* when there's an `ExecStart` (which is 
 > **Watch out — "no Type line" ≠ "always simple".** Your Docker unit sets `Type=notify` *explicitly*. It is neither simple nor defaulted. Always check for an explicit `Type=` before assuming.
 {: .prompt-warning}
 
-### The three types you'll actually meet {#sec-12-2}
+### **The three types you'll actually meet** {#sec-12-2}
 
 | `Type=` | Shape of the program | systemd considers it "started" when… | Example |
 |---|---|---|---|
@@ -456,7 +456,7 @@ So "no Type line = simple" is true *only* when there's an `ExecStart` (which is 
 
 The key distinction between `simple` and `notify`: with `simple`, "active" just means "process launched." With `notify`, "active" means "the app told me it's genuinely ready to serve." That matters when other units depend on this one being truly up.
 
-### Deep dive: how `Type=notify` actually works (the mechanism) {#sec-12-3}
+### **Deep dive: how `Type=notify` actually works (the mechanism)** {#sec-12-3}
 
 With `notify`, systemd holds the service in an **"activating"** state and waits for the app to explicitly say *"I'm ready now"* before flipping it to **"active"** (and before starting anything that depends on it). So the app has to send a signal back. The wire protocol is simple and has **no magic**:
 
@@ -485,7 +485,7 @@ sdnotify.SystemdNotifier().notify("READY=1")
 
 For shell/bash jobs there's even a wrapper: `systemd-notify --ready`.
 
-### Wiring `notify` into a FastAPI app (devicehub example) {#sec-12-4}
+### **Wiring `notify` into a FastAPI app (devicehub example)** {#sec-12-4}
 
 Send `READY=1` **after** real startup is done (DB open, caches warm) — in FastAPI's lifespan startup hook. Uvicorn won't emit it for you:
 
@@ -513,7 +513,7 @@ NotifyAccess=all
 ExecStart=/usr/local/bin/uv run uvicorn my_service.api.app:app --host 127.0.0.1 --port 8000
 ```
 
-### ⚠️ The `NotifyAccess` gotcha (bites `uv run` / wrapper setups) {#sec-12-5}
+### **⚠️ The `NotifyAccess` gotcha (bites `uv run` / wrapper setups)** {#sec-12-5}
 
 Note that a wrapped launch has a **two-process tree**: the wrapper is the Main PID, the real app is its **child**:
 
@@ -527,17 +527,17 @@ By default **`NotifyAccess=main`** — systemd only accepts `READY=1` **from the
 - **Easiest:** `NotifyAccess=all` — accept the notification from any process in the service's cgroup (including the child).
 - **Cleaner:** make the app the Main PID so the sender *is* the Main PID — run the venv's uvicorn directly (`ExecStart=/path/.venv/bin/uvicorn ...`) and drop the `uv run` wrapper, since the wrapper forks the app as a child rather than replacing itself.
 
-### Should you bother with `notify`? {#sec-12-6}
+### **Should you bother with `notify`?** {#sec-12-6}
 
 For a single app behind nginx, **`Type=simple` is usually fine** — `notify` is extra moving parts. `notify` earns its keep when *something else depends on this service being truly ready*: e.g. another unit with `After=my-service.service` that must not start until the API can serve, or you want `systemctl restart` to block until the app is genuinely up. No such need → `simple` is the pragmatic choice.
 
 ---
 
-## 13. Scheduled jobs — cron vs systemd timers (and what "migrated to systemd" means) {#sec-13}
+## **13. Scheduled jobs — cron vs systemd timers (and what "migrated to systemd" means)** {#sec-13}
 
 So far every service has been a long-running process (devicehub API, nginx, Docker). But a lot of work is *periodic* instead — "run this every 5 minutes," "back up the DB at 3am." For that you need a **scheduler**, and Linux has **two different ones**.
 
-### There are two separate schedulers on a Linux box {#sec-13-1}
+### **There are two separate schedulers on a Linux box** {#sec-13-1}
 
 **cron** is the old, traditional Unix scheduler. It's a daemon that wakes up every minute and checks a set of "crontab" files to see if any job is due. Each user can have their own crontab, stored at `/var/spool/cron/crontabs/<user>` (that's where files like `user02` and `root` live). A crontab line looks like this:
 
@@ -563,7 +563,7 @@ The timer "triggers" the service. That's the whole model.
 > **Mental model:** cron and systemd timers are **two tools in the same category** — like two brands of alarm clock. A machine can run both at once. Many teams standardize on systemd and move jobs off cron.
 {: .prompt-tip}
 
-### What does "migrated to systemd" actually mean? {#sec-13-2}
+### **What does "migrated to systemd" actually mean?** {#sec-13-2}
 
 It means **a human took the old cron line and recreated it as a `.timer` + `.service` pair**, then switched the cron line off. For a job called `my-service`, someone:
 
@@ -583,11 +583,11 @@ That last step is why a migrated crontab line becomes dead text:
 
 So, directly: **before the migration it *was* a cron job; after, it is *not* — it's a systemd timer+service.** "Moving it" means re-expressing the exact same schedule+command in systemd's format and turning off the cron version.
 
-### Was any of this automatic? {#sec-13-3}
+### **Was any of this automatic?** {#sec-13-3}
 
 **No — none of it is automatic.** A person (or a deploy script a person wrote) created those two files, enabled the timer, and commented out the cron line. systemd does **not** "absorb" cron jobs on its own. The only automatic part happens *afterward*: once the timer is enabled, systemd fires it every 5 minutes forever — exactly like a service starts on boot.
 
-### What the two files look like {#sec-13-4}
+### **What the two files look like** {#sec-13-4}
 
 The **`.service`** (note `Type=oneshot` — this is the big difference from a long-running API):
 
@@ -617,7 +617,7 @@ Persistent=true
 WantedBy=timers.target
 ```
 
-### Two things to burn into memory {#sec-13-5}
+### **Two things to burn into memory** {#sec-13-5}
 
 **1. `Type=oneshot` vs `Type=simple`.** (Full type reference is in **Section 12**.)
 
@@ -631,7 +631,7 @@ A scheduled job is `Type=oneshot`: it's "dead" most of the time, and the timer b
 
 **2. The name pairing.** The timer and service share the **same base name** (`my-service.timer` ↔ `my-service.service`). That's how systemd knows they belong together — a `.timer` automatically triggers the `.service` with the identical name. (You *can* override this with a `Unit=` line in `[Timer]`, but by default it's name-matching.) This is also why you run `systemctl enable` on the **`.timer`**, not the service — you enable the *schedule*, and the schedule pulls the service.
 
-### Where do `.timer` files live? {#sec-13-6}
+### **Where do `.timer` files live?** {#sec-13-6}
 
 **Exactly the same service-discovery paths as `.service` files** — nothing new to learn here. A `.timer` is just another unit type, so it obeys the same rules from Section 4:
 
@@ -645,7 +645,7 @@ The only differences from a `.service`:
 - The file ends in **`.timer`** instead of `.service` (that's how systemd knows it's a timer).
 - Its `[Install] WantedBy=` is **`timers.target`** instead of `multi-user.target` — so `enable` wires it into the timer-activation stage rather than the normal boot stage. Same symlink mechanism (Section 6), different target directory (`timers.target.wants/`).
 
-### Why teams bother moving cron → systemd {#sec-13-7}
+### **Why teams bother moving cron → systemd** {#sec-13-7}
 
 The schedule is identical, so the payoff is everything *around* it:
 
@@ -655,7 +655,7 @@ The schedule is identical, so the payoff is everything *around* it:
 - **Catch-up runs.** `Persistent=true` reruns a missed job after downtime. Plain cron just skips it.
 - **One management surface.** Your API, nginx, Docker, and scheduled jobs are all managed the same way with `systemctl` and `journalctl`.
 
-### What you can do with it (the split: enable the timer, start the service) {#sec-13-8}
+### **What you can do with it (the split: enable the timer, start the service)** {#sec-13-8}
 
 ```bash
 # See the exact definitions (schedule + command)
@@ -686,7 +686,7 @@ sudo systemctl disable --now my-service.timer
 
 ---
 
-## 14. One-page cheat sheet {#sec-14}
+## **14. One-page cheat sheet** {#sec-14}
 
 **Concepts**
 - **systemd** = PID 1, the init system / project manager. Starts & supervises everything.

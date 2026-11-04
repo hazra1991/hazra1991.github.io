@@ -37,7 +37,7 @@ Two pages in one:
 
 ---
 
-## The whole series in one picture {#r-picture}
+## **The whole series in one picture** {#r-picture}
 
 ```
 Browser ── DNS: name → IP ── TCP to IP:80/443 ── [HTTPS: TLS handshake, SNI picks the certificate]
@@ -56,9 +56,9 @@ Response back the same way; nginx can add / hide headers on the way out     Part
 
 ---
 
-## Part 1 — How nginx runs {#r-part-1}
+## **Part 1 — How nginx runs** {#r-part-1}
 
-### Linux foundations → [Part 1, 2]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-2) {#r-linux}
+### **Linux foundations → [Part 1, 2]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-2)** {#r-linux}
 
 - A process has a **PID**, a **PPID** (its parent) and an **owner**. The tree starts at systemd (PID 1). `fork()` copies a process — that's how the master creates workers. A daemon has no terminal (`?` in `ps`).
 - `ps -ef | grep nginx` matches the **whole line**, including the user column. Real nginx only: `pgrep -a nginx`, `ps -C nginx -f`, `systemctl status nginx`.
@@ -69,14 +69,14 @@ Response back the same way; nginx can add / hide headers on the way out     Part
 - `127.0.0.1` = this machine only · the real IP = the network · `0.0.0.0` = bind on all interfaces (never an address you connect to).
 - TCP socket (`127.0.0.1:8000`) vs Unix socket (a **file**, access by file permissions — server 14's uwsgi apps).
 
-### One program, two packages → [Part 1, 3]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-3) {#r-packages}
+### **One program, two packages → [Part 1, 3]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-3)** {#r-packages}
 
 - One binary, `/usr/sbin/nginx`. The **package** decides the rest: unit file, default config, worker user, directories.
 - **Debian/Ubuntu** (server 85): `www-data`, `conf.d/` + `sites-available/` → `sites-enabled/` (symlinks), `modules-enabled/`. **nginx.org** (server 14): user `nginx`, only `conf.d/`, modules compiled in.
 - Which one is installed: `nginx -v`, `apt-cache policy nginx`, `dpkg -S /usr/lib/systemd/system/nginx.service`.
 - *Q: why do my two servers run nginx differently?* Different packages, chosen when the machine was provisioned. Same program, same behaviour.
 
-### systemd starts it → [Part 1, 4]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-4) {#r-systemd}
+### **systemd starts it → [Part 1, 4]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-4)** {#r-systemd}
 
 - Unit files: from the package in `/usr/lib/systemd/system/`, admin overrides in `/etc/systemd/system/` (they win). `systemctl cat nginx` shows the one in effect.
 - Debian's unit tests first (`ExecStartPre nginx -t`), passes `-g 'daemon on; master_process on;'` (global directives on the command line), stops gracefully via `start-stop-daemon` (QUIT, then TERM, then KILL). nginx.org's passes `-c ${CONFFILE}` and reloads/stops with raw `kill -s HUP` / `TERM`.
@@ -85,7 +85,7 @@ Response back the same way; nginx can add / hide headers on the way out     Part
 - *Q: did I install or start nginx?* No. It's an OS service set up by provisioning, `enabled` → started at every boot.
 - systemd in general (unit files, `enable` vs `start`, drop-ins, `Type=`, timers): [systemd, systemctl and Service Files]({{ site.posts | where: "slug", "systemd-systemctl-and-service-files" | first.url | relative_url }}).
 
-### Master and workers → [Part 1, 5]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-5) {#r-workers}
+### **Master and workers → [Part 1, 5]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-5)** {#r-workers}
 
 - **Master** (root): binds the ports, reads the config, forks and replaces workers, never handles a request. **Workers** (low-privilege user): handle every request.
 - `worker_processes auto;` = one worker per CPU core (8 on server 85, 4 on server 14). Each worker is a single-threaded `epoll` event loop handling thousands of connections.
@@ -93,7 +93,7 @@ Response back the same way; nginx can add / hide headers on the way out     Part
 - Workers drop root so that a bug exploited in HTTP handling only gets `www-data` permissions.
 - **Reload** = master validates the new config → starts new workers → old ones finish and exit. Zero downtime, same master PID; a broken config is refused and the old one keeps running. Always `sudo nginx -t && sudo systemctl reload nginx`. (`restart` = full stop and start.)
 
-### nginx.conf and contexts → [Part 1, 6]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-6) {#r-conf}
+### **nginx.conf and contexts → [Part 1, 6]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-6)** {#r-conf}
 
 ```nginx
 user www-data;                  # main context: worker user, worker count, pid
@@ -113,7 +113,7 @@ http {                          # everything HTTP; inherited by every server bel
 - Settings inherit downward (`http` → `server` → `location`) unless overridden. ⚠️ `proxy_set_header` and `add_header` inherit **only if the inner block sets none of its own** ([Part 2, 9.9]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-9)).
 - The two packages' `nginx.conf` differ only in packager defaults: worker user, `worker_connections` (768 vs 1024), Debian's extra `sites-enabled/` and `modules-enabled/`. Sites are added as files in `conf.d/` (or `sites-enabled/`), not by editing `nginx.conf`.
 
-### include = copy-paste → [Part 1, 7]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-7) {#r-include}
+### **include = copy-paste → [Part 1, 7]({{ site.posts | where: "slug", "nginx-part-1" | first.url | relative_url }}#sec-7)** {#r-include}
 
 - `include` pastes the file(s) in place **before** parsing; a glob expands in **alphabetical** order. nginx then parses one big config.
 - So: one syntax error in any file → `nginx -t` fails, reload refused · the same `server_name` twice on a port → warning, the second is ignored · `upstream` names are shared by all files · a file must contain what's allowed where it's pasted (`conf.d/` files go inside `http {}`).
@@ -121,9 +121,9 @@ http {                          # everything HTTP; inherited by every server bel
 
 ---
 
-## Part 2 — Routing requests {#r-part-2}
+## **Part 2 — Routing requests** {#r-part-2}
 
-### Which server block answers → [Part 2, 8]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-8) {#r-server-block}
+### **Which server block answers → [Part 2, 8]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-8)** {#r-server-block}
 
 - One `server {}` block = one **virtual server**. Many share one IP and port; the **`Host` header** tells them apart. DNS only gets the browser to the right machine.
 - The browser always sends `Host`: a domain URL → DNS lookup, `Host` = the domain; an IP URL → `Host` = the IP.
@@ -144,7 +144,7 @@ server {
 - Test without a browser: `curl --resolve name:443:IP https://name/` (sets Host **and** SNI) or `curl -H "Host: name" http://IP/`.
 - *Q: many blocks — different IPs or ports?* Neither: same IP and port, different `Host`. *Q: all `*.example.com` names have the same IP — what differs?* Only the name, carried in `Host` (and in SNI for HTTPS).
 
-### Phases: nginx doesn't run lines in order → [Part 2]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#phases), [Part 3, 15.3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-3) {#r-phases}
+### **Phases: nginx doesn't run lines in order → [Part 2]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#phases), [Part 3, 15.3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-3)** {#r-phases}
 
 - The config is **declarative**: each directive belongs to a phase, and the phases run in a fixed order for every request, whatever the order of the lines.
 - Simplified order: server-level `return`/`rewrite`/`set`/`if` → **find the location** → location-level `return`/`rewrite`/`set`/`if` → **access** (`allow`/`deny`, `auth_basic`, `auth_request`) → `try_files` → **content** (`proxy_pass`, static files) → log. All 11: [phases table](#ref-phases).
@@ -152,14 +152,14 @@ server {
 - The `try_files` fallback and `rewrite` are **internal redirects**: location matching starts again with the new URI.
 - *Q: does it matter whether `auth_request` or `proxy_pass` is written first?* No.
 
-### Picking a location → [Part 2, 9.1–9.2]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-2) {#r-location}
+### **Picking a location → [Part 2, 9.1–9.2]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-2)** {#r-location}
 
 - Locations only exist inside their own server block → several files can all have `location /`.
 - Matching: `=` exact → use it · otherwise remember the **longest prefix** · if it has `^~` → use it · else regexes (`~`, `~*`) **in file order**, first match wins · no regex matched → the longest prefix. `location /` matches everything, so it's the fallback.
 - ⚠️ `location /docs` also matches `/docsXYZ`; use `/docs/` or `= /docs` to be strict.
 - `location @name` = a named location, only reachable by internal redirects.
 
-### Serving files: root, alias, try_files → [Part 2, 9.3–9.4]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-3) {#r-files}
+### **Serving files: root, alias, try_files → [Part 2, 9.3–9.4]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-3)** {#r-files}
 
 ```nginx
 location / {
@@ -174,7 +174,7 @@ location /static {
 
 - Without the `try_files` fallback, refreshing a React route like `/devices/5` gives 404: no such file on disk.
 
-### proxy_pass and the path rule → [Part 2, 9.5–9.6]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-6) {#r-path-rule}
+### **proxy_pass and the path rule → [Part 2, 9.5–9.6]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-6)** {#r-path-rule}
 
 - `proxy_pass` makes nginx send a **new** request to the backend, and nginx decides that request's **path** and **headers**.
 - **The rule:** `proxy_pass` **without** a path → the path is sent unchanged. **With** a path (even a lone `/`) → the part that **matched the location** is replaced by it, and the remainder is appended. Plain text replacement.
@@ -194,7 +194,7 @@ location /static {
 - A whole UI under a sub-path breaks: its absolute asset paths (`/static/app.js`) land in **our** `location /`. Give it a subdomain instead.
 - *Q: does `proxy_pass http://b:8000/;` replace the whole path?* No, only the matched prefix.
 
-### upstream and uwsgi_pass → [Part 2, 9.7]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-7) {#r-upstream}
+### **upstream and uwsgi_pass → [Part 2, 9.7]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-7)** {#r-upstream}
 
 ```nginx
 upstream api_pool {                     # a named group of backends; round-robin by default
@@ -210,7 +210,7 @@ location /     { uwsgi_pass tool2; include uwsgi_params; uwsgi_read_timeout 600s
 
 - Server 85: FastAPI under uvicorn via `proxy_pass` (HTTP over TCP). Server 14: Django under uwsgi via `uwsgi_pass` (a socket file).
 
-### Headers to the backend → [Part 2, 9.9]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-9) {#r-headers}
+### **Headers to the backend → [Part 2, 9.9]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-9-9)** {#r-headers}
 
 - The client's headers (Cookie, Authorization, ...) are copied into the new request, except two nginx sets itself: `Host $proxy_host` (→ `127.0.0.1:8000`) and `Connection close`.
 - With `Host: 127.0.0.1:8000` the backend builds redirects and links to `127.0.0.1:8000`, and Django rejects it (400 `ALLOWED_HOSTS`, CSRF "Origin checking failed").
@@ -227,7 +227,7 @@ proxy_set_header X-Forwarded-Proto $scheme;                     # "https" when n
 - ⚠️ Inheritance is all-or-nothing → each location on server 85 repeats its `proxy_set_header` lines.
 - See exactly what nginx sends: point a location at `nc -l 127.0.0.1 9999`.
 
-### Two real deployments → [Part 2, 10–11]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-11-1) {#r-deployments}
+### **Two real deployments → [Part 2, 10–11]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-11-1)** {#r-deployments}
 
 | | Server 14 | Server 85 |
 |---|---|---|
@@ -241,18 +241,18 @@ proxy_set_header X-Forwarded-Proto $scheme;                     # "https" when n
 - Server 85 reached by hostname instead of IP → no `server_name` matches → Debian's `sites-enabled/default` ("Welcome to nginx").
 - Both styles use the same mechanisms; the choice is organisational.
 
-### Browser flow and CORS → [Part 2, 12]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-12) {#r-browser}
+### **Browser flow and CORS → [Part 2, 12]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-12)** {#r-browser}
 
 - A page load is many requests: `index.html` → the JS/CSS it names → the app now runs **in the browser** → every `fetch('/api/...')` is a new request, routed by Host + path. A relative URL uses the page's own origin.
 - Origin = scheme + host + port. A different origin → the browser requires `Access-Control-Allow-*` headers and sends `OPTIONS` preflights; nginx can answer them itself (`if ($request_method = OPTIONS) { add_header ...; return 204; }`).
 - CORS is enforced only by browsers (`curl` ignores it). Cookies across origins → a specific origin + `Access-Control-Allow-Credentials: true`, never `*`.
 
-### Docker → [Part 2, 13]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-13) {#r-docker}
+### **Docker → [Part 2, 13]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#sec-13)** {#r-docker}
 
 - An app in a container must listen on `0.0.0.0`: its `127.0.0.1` is its own, and Docker forwards to the container's IP.
 - `proxy_pass` uses the **host-side** port (left of `-p HOST:CONTAINER`). Publish as `-p 127.0.0.1:HOST:CONTAINER` so nobody reaches it around nginx. More: [Docker Networking Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}).
 
-### HTTPS → [Part 2, HTTPS]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#https) {#r-https}
+### **HTTPS → [Part 2, HTTPS]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#https)** {#r-https}
 
 - TLS is negotiated **before** the HTTP request → the browser sends the name in the handshake (**SNI**), and nginx uses it to pick the block and certificate.
 - Two files: `ssl_certificate` (cert + chain, public) and `ssl_certificate_key` (secret, root-only; the master reads it while still root).
@@ -271,9 +271,9 @@ server {
 
 ---
 
-## Part 3 — Internal requests and auth {#r-part-3}
+## **Part 3 — Internal requests and auth** {#r-part-3}
 
-### Requests nginx makes to itself → [Part 3, 14]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14) {#r-internal}
+### **Requests nginx makes to itself → [Part 3, 14]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14)** {#r-internal}
 
 | Feature | Starts an internal request when | Typical use |
 |---|---|---|
@@ -284,7 +284,7 @@ server {
 | `internal;` | — marks a location internal-only (clients get 404) | auth endpoints, protected files |
 | `@name` | — always internal | fallback handlers |
 
-### auth_request and `/__whoami` → [Part 3, 14.5–14.8]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14-5) {#r-auth-request}
+### **auth_request and `/__whoami` → [Part 3, 14.5–14.8]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14-5)** {#r-auth-request}
 
 ```nginx
 location /api/ {
@@ -308,33 +308,33 @@ location = /__whoami {          # "=" exact, highest priority · "__" can't clas
 - It runs on **every** protected request. Module present? `nginx -V 2>&1 | grep -o with-http_auth_request_module`.
 - The login page and the auth API stay public (`location /api/auth/ { ... }` without `auth_request`).
 
-### Who actually checks credentials → [Part 3, 15.1–15.2]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-1) {#r-who-checks}
+### **Who actually checks credentials → [Part 3, 15.1–15.2]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-1)** {#r-who-checks}
 
 - **Authentication** (who are you?) can live at the gateway; **authorization** (may this user do this?) stays in the app.
 - *Q: "Authentication" on the API-gateway box of a diagram — valid?* Yes: reject requests without valid credentials before any backend. Standard gateway feature.
 - *Q: does nginx authenticate with `auth_request`?* No. The auth service checks; nginx only enforces its verdict.
 - nginx checks credentials itself only with: `auth_basic` (password file via `htpasswd`; HTTPS only), mTLS (`ssl_verify_client on`), `auth_jwt` (NGINX Plus only), and `allow`/`deny` (by IP — access, not identity). `satisfy any` = office network **or** password.
 
-### The auth_request flow, exactly → [Part 3, 15.3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-3) {#r-auth-flow}
+### **The auth_request flow, exactly → [Part 3, 15.3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-3)** {#r-auth-flow}
 
 - Main request: server block → location → rewrite → **access: subrequest to `/__auth`** (the main request waits) → 2xx → `try_files` → **content: `proxy_pass`** to the backend with the same method, path and body, plus the added headers.
 - ⚠️ The subrequest is resolved **in the same server block**. `internal` doesn't make it global: every block that uses `auth_request /__auth` needs its own `location = /__auth` → write it once in `snippets/auth.conf` and `include` it in each block. The auth **service** can live anywhere.
 - ⚠️ `return` inside a protected location is served to everyone (rewrite runs before access). Useful only for CORS preflights, which never carry credentials.
 
-### Cookies from the auth service, caching → [Part 3, 15.4–15.5]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-4) {#r-auth-cookies}
+### **Cookies from the auth service, caching → [Part 3, 15.4–15.5]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-4)** {#r-auth-cookies}
 
 - The auth subrequest's body is discarded and its headers never reach the browser. To forward one cookie on purpose: `auth_request_set $c $upstream_http_set_cookie;` + `add_header Set-Cookie $c always;`.
 - Normal design: login, refresh and logout are ordinary **public** locations, so their `Set-Cookie` reaches the browser by itself.
 - Caching the verdict (`proxy_cache` on `/__auth`, keyed on `$http_authorization$cookie_session`, e.g. 30 s) saves subrequests, but a cached "allowed" can outlive a logout.
 
-### The trust boundary → [Part 3, 15.6]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-6) {#r-trust}
+### **The trust boundary → [Part 3, 15.6]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-6)** {#r-trust}
 
 - Backends trust `X-User` blindly → **nothing but nginx may reach them**: loopback, firewall, a Docker internal network, a gateway secret header, or mTLS.
 - *Q: must all services be on the same machine?* No — they must be **unreachable except via nginx**; loopback is just the easiest way.
 - In locations **without** auth that proxy to the same backends, blank the identity headers: `proxy_set_header X-User "";` (empty = not sent). Protected locations overwrite them anyway.
 - No `return` in protected locations.
 
-### When gateway auth fits; external services (nginx side) → [Part 3, 15.7–15.9]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-7) {#r-fits}
+### **When gateway auth fits; external services (nginx side) → [Part 3, 15.7–15.9]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-7)** {#r-fits}
 
 - Fits: **many internal services, one user base**. One self-contained product → auth in the app. External callers → API keys or OAuth, never gateway headers.
 - nginx can only change requests whose URL points at **our** nginx. To add a partner's key, route the call through us:
@@ -352,7 +352,7 @@ location /partner/ {
 
 - Checklist of everything that can go wrong: [15.9]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-9).
 
-### Four messages: request vs response → [Part 3, 16]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-16) {#r-messages}
+### **Four messages: request vs response → [Part 3, 16]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-16)** {#r-messages}
 
 ```
            ① request                  ② request (a NEW one)
@@ -369,9 +369,9 @@ location /partner/ {
 
 ---
 
-## Part 4 — Gateway auth in practice {#r-part-4}
+## **Part 4 — Gateway auth in practice** {#r-part-4}
 
-### Where auth belongs, who holds what → [Part 4, 17–18]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-17) {#r-design}
+### **Where auth belongs, who holds what → [Part 4, 17–18]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-17)** {#r-design}
 
 - One product (UI + backend): auth **in the app**, BFF style — the browser holds only an `HttpOnly` session cookie, tokens stay server-side. Access + refresh tokens in the browser earn their place with mobile apps, third-party clients, cross-domain setups, stateless microservices.
 - A product for many customers: built-in auth **plus** an optional proxy-header mode (Grafana's `[auth.proxy]`, trusting the header only from the gateway's address). Defense in depth is normal.
@@ -379,7 +379,7 @@ location /partner/ {
 - **Central identity, local permissions:** company-wide roles arrive as `X-Roles`; "may delete *this* session" lives in each app's own DB, keyed by `X-User`.
 - A backend can additionally insist on a gateway secret header (`X-Gateway-Token`).
 
-### One session → [Part 4, 19]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-19) {#r-session}
+### **One session → [Part 4, 19]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-19)** {#r-session}
 
 - Login, refresh, logout: **public** endpoints (`/auth/...`), so their `Set-Cookie` reaches the browser. The verify endpoint is internal and answers only 2xx / 401 / 403.
 - Cookie rules: no `Domain` = host-only · `Domain=.example.com` = shared by all subdomains · `HttpOnly` for sessions · `Secure` needs HTTPS (so not on server 85) · set `SameSite` explicitly · cookies cross-origin = `credentials: 'include'` + a specific origin + `Allow-Credentials`.
@@ -387,7 +387,7 @@ location /partner/ {
 - The public whoami returns **401, not a 302** — `fetch()` can act on a 401; a redirect hands the JS a chunk of HTML.
 - *Q: for one UI + backend product, should auth be at the gateway?* No — in the app; gateway auth is for many services sharing one user base.
 
-### External services → [Part 4, 20]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-20) {#r-external}
+### **External services → [Part 4, 20]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-20)** {#r-external}
 
 - **Who sends the request decides everything:** `<iframe src="https://their.site/">` or `fetch("https://their.api/")` go straight to them, so we can't add a key; URLs under our nginx (`/integrations/...`) we can.
 - Three options: (a) nginx injects a static key (one service account, secret in `/etc/nginx`, no logic) · (b) **a backend integration layer** calling them with `httpx` (per-user checks, reshaping, retries — usually right) · (c) per-user delegation (OAuth2, token exchange).
@@ -398,7 +398,7 @@ location /partner/ {
 
 ---
 
-## Extra — Variables and a dynamic proxy → [Extra, 21]({{ site.posts | where: "slug", "nginx-variables-and-dynamic-proxy" | first.url | relative_url }}#sec-21) {#r-extra}
+## **Extra — Variables and a dynamic proxy → [Extra, 21]({{ site.posts | where: "slug", "nginx-variables-and-dynamic-proxy" | first.url | relative_url }}#sec-21)** {#r-extra}
 
 ```nginx
 location /__catalog-fetch {
@@ -419,9 +419,9 @@ location /__catalog-fetch {
 
 ---
 
-## Lookup {#lookup}
+## **Lookup** {#lookup}
 
-### Phases at a glance {#ref-phases}
+### **Phases at a glance** {#ref-phases}
 
 | # | Phase | Typical directives |
 |---|---|---|
@@ -439,7 +439,7 @@ location /__catalog-fetch {
 
 Consequences: `return` (2/4) runs **before** auth (7); `proxy_pass` (10) always runs **last**, whatever its line position. Details in [15.3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-15-3).
 
-### Directives at a glance — what it does, when it runs {#ref-directives}
+### **Directives at a glance — what it does, when it runs** {#ref-directives}
 
 **Routing and structure**
 
@@ -526,7 +526,7 @@ Consequences: `return` (2/4) runs **before** auth (7); `proxy_pass` (10) always 
 | `access_log` / `log_format` | request log and its format | 11 LOG |
 | `error_log` | error log | any time |
 
-### Variables at a glance {#ref-variables}
+### **Variables at a glance** {#ref-variables}
 
 | Variable | Value | Notes |
 |---|---|---|
@@ -555,7 +555,7 @@ Consequences: `return` (2/4) runs **before** auth (7); `proxy_pass` (10) always 
 
 Header and cookie names: lowercase, `-` → `_` (`X-User` → `$http_x_user`).
 
-### Processes & service {#ref-processes-service}
+### **Processes & service** {#ref-processes-service}
 
 ```bash
 systemctl status nginx              # is it running, since when, master + workers (CGroup)
@@ -572,7 +572,7 @@ cat /run/nginx.pid                  # master PID
 nproc                               # CPU cores → number of workers with "auto"
 ```
 
-### Config {#ref-config}
+### **Config** {#ref-config}
 
 ```bash
 sudo nginx -t                       # test config syntax
@@ -583,7 +583,7 @@ ls -l /etc/nginx/conf.d/ /etc/nginx/sites-enabled/
 grep -E "worker_processes|^user" /etc/nginx/nginx.conf
 ```
 
-### Package / build {#ref-package-build}
+### **Package / build** {#ref-package-build}
 
 ```bash
 nginx -v ; nginx -V 2>&1 | tr ' ' '\n'
@@ -591,7 +591,7 @@ apt-cache policy nginx
 dpkg -S /usr/lib/systemd/system/nginx.service
 ```
 
-### Network {#ref-network}
+### **Network** {#ref-network}
 
 ```bash
 ip addr                             # my interfaces and IPs
@@ -605,14 +605,14 @@ curl -vk -H "Host: tool2-dev.example.com" https://10.20.30.14/
 curl -v http://127.0.0.1:8000/api/  # hit the backend directly, skipping nginx
 ```
 
-### Logs {#ref-logs}
+### **Logs** {#ref-logs}
 
 ```bash
 sudo tail -f /var/log/nginx/access.log
 sudo tail -f /var/log/nginx/error.log      # FIRST place to look for 502/403/404 causes
 ```
 
-### Docker {#ref-docker}
+### **Docker** {#ref-docker}
 
 ```bash
 docker ps                                  # see PORTS column, e.g. 127.0.0.1:9090->8080/tcp
@@ -620,14 +620,14 @@ docker port <container>
 docker logs -f <container>
 ```
 
-### Permissions {#ref-permissions}
+### **Permissions** {#ref-permissions}
 
 ```bash
 namei -l /home_ldap/user01/workspace/devicehub_frontend/dist/index.html
 sudo -u www-data cat /home_ldap/user01/workspace/devicehub_frontend/dist/index.html
 ```
 
-### Troubleshooting — error → cause {#ref-troubleshooting}
+### **Troubleshooting — error → cause** {#ref-troubleshooting}
 
 | Symptom | Likely cause | Check |
 |---|---|---|

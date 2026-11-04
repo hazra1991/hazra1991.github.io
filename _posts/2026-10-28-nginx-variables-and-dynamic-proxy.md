@@ -35,7 +35,7 @@ It builds on [Part 2]({{ site.posts | where: "slug", "nginx-part-2" | first.url 
 
 ---
 
-## 21. A Dynamic Proxy, Line by Line {#sec-21}
+## **21. A Dynamic Proxy, Line by Line** {#sec-21}
 
 The config:
 
@@ -57,7 +57,7 @@ location /__catalog-fetch {
 > Everything below was checked against the official docs and on a test nginx (1.30). Where a behaviour is easy to get wrong, the test result is shown.
 {: .prompt-info}
 
-### 21.1 What does this configuration do? {#sec-21-1}
+### **21.1 What does this configuration do?** {#sec-21-1}
 
 Unlike a fixed proxy such as:
 
@@ -90,7 +90,7 @@ Conceptually, Nginx:
 
 A typical reason for such a location: the frontend needs data from a URL it can't fetch itself (another origin without CORS headers, or a host the user's network can't reach), so it asks its own nginx to fetch it ([who can reach what: Part 4, 20.2]({{ site.posts | where: "slug", "nginx-part-4" | first.url | relative_url }}#sec-20-2)).
 
-### 21.2 Directives vs. built-in variables vs. user-defined variables {#sec-21-2}
+### **21.2 Directives vs. built-in variables vs. user-defined variables** {#sec-21-2}
 
 Three kinds of words appear in this config. Telling them apart is what makes it readable.
 
@@ -140,7 +140,7 @@ means:
 
 (Variables also come from other directives: `auth_request_set` in [Part 3]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14-7) and `map` in [21.9](#sec-21-9) create them too.)
 
-### 21.3 Built-in variables: `$arg_*` and friends {#sec-21-3}
+### **21.3 Built-in variables: `$arg_*` and friends** {#sec-21-3}
 
 **Is `$arg_url` predefined?** Yes. Nginx exposes query parameters using the built-in variable family:
 
@@ -210,7 +210,7 @@ Nginx's incoming-header variables use lowercase names with hyphens represented a
 | `$upstream_addr` | Address of the upstream server used for the request |
 | `$status` | Response status code |
 
-### 21.4 `set` — your own variables {#sec-21-4}
+### **21.4 `set` — your own variables** {#sec-21-4}
 
 ```nginx
 set $upstream $arg_url;
@@ -253,7 +253,7 @@ This is Nginx configuration processing, not JavaScript execution.
 > **When it runs:** `set` belongs to the rewrite module, so it runs in the **rewrite phase**, before access checks and long before `proxy_pass` (content phase) uses the value. Line order doesn't matter; the [phases]({{ site.posts | where: "slug", "nginx-part-2" | first.url | relative_url }}#phases) do.
 {: .prompt-info}
 
-### 21.5 `proxy_pass $upstream` — the destination comes from the request {#sec-21-5}
+### **21.5 `proxy_pass $upstream` — the destination comes from the request** {#sec-21-5}
 
 Compare:
 
@@ -302,7 +302,7 @@ Thus the same Nginx location can contact different upstream hosts.
 
 So the caller must always pass a full URL including the path.
 
-### 21.6 `resolver` — DNS at request time {#sec-21-6}
+### **21.6 `resolver` — DNS at request time** {#sec-21-6}
 
 ```nginx
 resolver 10.20.0.2 valid=60s;
@@ -359,7 +359,7 @@ is commented out and has no effect. The active resolver is `10.20.0.2`.
 > Inside Docker, the resolver for container names is Docker's embedded DNS at `127.0.0.11` ([Docker Networking Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }})).
 {: .prompt-tip}
 
-### 21.7 `$proxy_host` and `proxy_ssl_server_name` — talking to the remote server {#sec-21-7}
+### **21.7 `$proxy_host` and `proxy_ssl_server_name` — talking to the remote server** {#sec-21-7}
 
 **What is `$proxy_host`?**
 
@@ -437,7 +437,7 @@ proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;   # CA bundle 
 proxy_ssl_verify_depth        2;    # default 1 fails on usual public chains: "unable to get local issuer certificate"
 ```
 
-### 21.8 `add_header` — the other direction {#sec-21-8}
+### **21.8 `add_header` — the other direction** {#sec-21-8}
 
 `add_header` is a built-in Nginx directive that adds **response headers** sent to the client. Compare the two directions.
 
@@ -479,7 +479,7 @@ add_header X-App-Name "devicehub" always;
 
 (All four messages of a proxied request and which directive changes which: [Part 3, 16]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-16).)
 
-### 21.9 ⚠️ Security: SSRF {#sec-21-9}
+### **21.9 ⚠️ Security: SSRF** {#sec-21-9}
 
 Accepting an arbitrary client-controlled destination in:
 
@@ -523,7 +523,7 @@ server {
 
 The pattern requires the host to be followed by `/` or `:port/`, so look-alikes are refused: `https://catalog.example.com.evil.com/` and `https://catalog.example.com@evil.com/` both get 403. Add `auth_request` ([Part 3, 14.5]({{ site.posts | where: "slug", "nginx-part-3" | first.url | relative_url }}#sec-14-5)) if only logged-in users should use it.
 
-### 21.10 Final mental model {#sec-21-10}
+### **21.10 Final mental model** {#sec-21-10}
 
 ```text
 Browser request:

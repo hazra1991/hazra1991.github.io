@@ -37,7 +37,7 @@ tags: [docker, networking, nginx]
 
 ---
 
-## What problem Docker networking solves
+## **What problem Docker networking solves**
 
 A container is just a process on the host, but Docker deliberately **isolates** it, and that includes its network. The container gets its own network interfaces, its own IP address and even its own `localhost`. That isolation is useful (containers can't trip over each other's ports), but it immediately raises three questions:
 
@@ -49,7 +49,7 @@ Everything in this post answers one of those three. The running example is a rea
 
 ---
 
-## 1. A container has its own network
+## **1. A container has its own network**
 
 Linux has a feature called a **network namespace**: a separate, private copy of the network stack, with its own interfaces, IP addresses, routing table and ports. Docker puts every container (in the default mode) into its own namespace.
 
@@ -76,7 +76,7 @@ So inside the container there are (at least) two interfaces:
 
 ---
 
-## 2. How the container is wired to the host: the bridge
+## **2. How the container is wired to the host: the bridge**
 
 A private network on its own is useless; it has to connect to something. By default Docker connects containers to a **bridge**, a virtual network switch living on the host:
 
@@ -107,7 +107,7 @@ You can see the host side of this with `ip -br addr`: `docker0`, plus one `veth.
 > Where that `172.17.0.0/16` subnet comes from, why Compose projects get *their own* bridges (`br-xxxx`) with other subnets, and how those subnets can collide with a corporate network, is the subject of [Part 2]({{ site.posts | where: "slug", "docker-networking-part-2" | first.url | relative_url }}).
 {: .prompt-info}
 
-### Network modes at a glance
+### **Network modes at a glance**
 
 The bridge is the default, but not the only option:
 
@@ -123,7 +123,7 @@ Sections 3–6 are all about **bridge** mode. Host mode gets its own section at 
 
 ---
 
-## 3. The way out: outbound NAT
+## **3. The way out: outbound NAT**
 
 When the app calls an external API, the packet leaves `eth0` with source address `172.17.0.3`. Nobody outside knows that private address, so on its way out through the host's real NIC Docker **NATs** it (source NAT / "masquerade"): the source becomes the **host's own IP**. Replies come back to the host, and Linux translates them back to the container.
 
@@ -139,7 +139,7 @@ Docker sets this up automatically with iptables rules. You don't configure anyth
 
 ---
 
-## 4. The way in: publishing ports
+## **4. The way in: publishing ports**
 
 The way in is the opposite problem: a request arrives at the **host's** IP, and has to be forwarded to a container IP that nobody outside can see. That's what **publishing a port** does:
 
@@ -156,7 +156,7 @@ client ──▶ host:9090 ──▶ Docker forwards ──▶ 172.17.0.3:8080 (
 > Under the hood there are two forwarders: iptables NAT rules for traffic arriving from the network, and a small `docker-proxy` process for traffic from the host itself (e.g. `127.0.0.1:9090`). That's why `ss -tlnp` on the host shows `docker-proxy` listening on `9090`.
 {: .prompt-info}
 
-### Which port does nginx point to?
+### **Which port does nginx point to?**
 
 **nginx's `proxy_pass` uses the HOST port**, never the container port. nginx runs on the host, and on the host only `9090` exists. `8080` exists only inside the container's namespace.
 
@@ -169,7 +169,7 @@ location /api/ {
 
 ---
 
-## 5. Why the app inside MUST bind `0.0.0.0`
+## **5. Why the app inside MUST bind `0.0.0.0`**
 
 Now the piece that trips everyone up. Docker forwards traffic to the **container's IP (`eth0`)**, not its loopback. So what the app listens on decides whether the forwarded traffic finds anyone:
 
@@ -195,7 +195,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
 
 `localhost` only makes sense for something that must **never** be reached from outside its own machine/namespace (e.g. a helper daemon).
 
-### Isn't `0.0.0.0` insecure?
+### **Isn't `0.0.0.0` insecure?**
 
 `0.0.0.0` inside the container is normal and safe. Binding it *inside* the container doesn't decide what's reachable from outside. That depends on:
 - (a) the Docker **port mapping** (only published ports are exposed),
@@ -225,7 +225,7 @@ ss -tlnp | grep 9090
 # 127.0.0.1:9090  → only from this host (nginx)
 ```
 
-### What if I run uvicorn without Docker?
+### **What if I run uvicorn without Docker?**
 
 ```bash
 uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -243,7 +243,7 @@ Here `127.0.0.1` is actually the *better* choice: nginx is on the same machine, 
 
 ---
 
-## 6. Putting it together: the full request chain
+## **6. Putting it together: the full request chain**
 
 Every hop is now explained, so here is the whole path in one picture:
 
@@ -278,11 +278,11 @@ When something breaks, walk the same chain and check each hop: is nginx pointing
 
 ---
 
-## 7. The other mode: host networking
+## **7. The other mode: host networking**
 
 Everything above is **bridge** mode, Docker's default. You'll meet host mode too, usually as a workaround when bridge networking is broken on a host (see [Part 2]({{ site.posts | where: "slug", "docker-networking-part-2" | first.url | relative_url }})).
 
-### What `host` networking actually does
+### **What `host` networking actually does**
 `network_mode: host` (run) and `--network=host` (build) mean the same thing: the
 container/build **shares the host's network stack directly**. No `docker0` bridge, no NAT,
 no private `172.17.x` IP. The process uses the host's interfaces, IPs, and routing table as
@@ -295,7 +295,7 @@ services:
 ```
 {: file="docker-compose.yaml"}
 
-### So is it 9090 or 8080 now?
+### **So is it 9090 or 8080 now?**
 
 This app's `uvicorn` binds **`8080` inside the container**. What the host sees depends on the mode:
 
@@ -324,7 +324,7 @@ Dockerfile `CMD` (e.g. to `--port 9090`). Remember to update nginx's `proxy_pass
 > In host mode, section 5's rule flips back: the container's `127.0.0.1` **is** the host's loopback. Binding `127.0.0.1` works with nginx on the same host, and `0.0.0.0` now means *every host interface*.
 {: .prompt-info}
 
-### Why do people recommend `bridge` instead of just using `host`?
+### **Why do people recommend `bridge` instead of just using `host`?**
 `host` is simpler and faster, but it removes the isolation that Docker exists to provide.
 `bridge` is the default for good reasons:
 
@@ -345,7 +345,7 @@ Dockerfile `CMD` (e.g. to `--port 9090`). Remember to update nginx's `proxy_pass
 > network performance or access.
 {: .prompt-tip}
 
-### Does host networking harm the host?
+### **Does host networking harm the host?**
 No. It does **not** modify the host's networking or create the risky `docker0` subnet.
 It simply lets the container *use* the host's existing, already-working network. That's why
 it's the **safe** workaround when the bridge is disabled, unlike re-enabling the default bridge
@@ -356,7 +356,7 @@ not host breakage.
 
 ---
 
-## 8. Who manages what
+## **8. Who manages what**
 
 On a shared or company-provisioned server, it helps to know which pieces are yours:
 
@@ -370,7 +370,7 @@ On a shared or company-provisioned server, it helps to know which pieces are you
 
 ---
 
-## TL;DR
+## **TL;DR**
 
 - A bridged container has its **own network namespace**: its own `eth0` IP and its own `127.0.0.1`.
 - **Out:** Docker NATs container traffic to the host's IP. **In:** a published port (`-p HOST:CONTAINER`) forwards host traffic to the container's `eth0`.

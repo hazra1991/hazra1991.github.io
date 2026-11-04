@@ -58,7 +58,7 @@ The post starts with Problem B, the more dangerous one, then builds the foundati
 
 ---
 
-## 1. The problem in one paragraph
+## **1. The problem in one paragraph**
 
 A server was reached over SSH from a client whose address was `172.17.33.5`. Running `docker compose up` on that server created a new Docker network, and Docker picked `172.17.0.0/16` for it. The server now had a local route saying *"all of 172.17.x.x is on this Docker bridge"*, so replies to the SSH client were sent into the empty bridge instead of out through the real gateway. The SSH session died with `client_loop: send disconnect: Broken pipe`, and port 22 stopped answering. The server itself was healthy the whole time. Only the route back to the client was hijacked.
 
@@ -75,7 +75,7 @@ A server was reached over SSH from a client whose address was `172.17.33.5`. Run
 
 ---
 
-## 2. Two kinds of Docker networks
+## **2. Two kinds of Docker networks**
 
 Quick recap from [Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}#2-how-the-container-is-wired-to-the-host-the-bridge): a bridge is a **virtual switch** on the host that containers plug into; it's their gateway, and Docker NATs their traffic out through the host's real NIC. What Part 1 didn't cover is that there are **two kinds**. The **default** one is called `bridge` in `docker network ls`, and its interface is `docker0`. Each user-defined network gets its own bridge interface, named `br-<id>`.
 
@@ -93,7 +93,7 @@ Quick recap from [Part 1]({{ site.posts | where: "slug", "docker-networking-part
 
 ---
 
-## 3. Docker's built-in address pool
+## **3. Docker's built-in address pool**
 
 When nothing else is configured, Docker hands out subnets in this order:
 
@@ -117,7 +117,7 @@ Two servers running the *same* compose file can get *different* subnets, dependi
 
 ---
 
-## 4. Which setting wins
+## **4. Which setting wins**
 
 | Situation | What Docker uses |
 |---|---|
@@ -135,7 +135,7 @@ Rules that follow from this:
 
 ---
 
-## 5. Do I even need to touch `daemon.json`?
+## **5. Do I even need to touch `daemon.json`?**
 
 **Short answer: usually not for `docker0`, but think about Compose networks.** Bridge is Docker's default: on a normal host the `bridge` network already exists and `daemon.json` is empty or absent. You edit `daemon.json` to fix a problem (a subnet collision, a disabled bridge) or to make all future Compose networks safe, never as a requirement.
 
@@ -176,19 +176,19 @@ graph TD
 
 ---
 
-## 6. Build fails: "network bridge not found"
+## **6. Build fails: "network bridge not found"**
 
-### Symptom
+### **Symptom**
 ```text
 failed to solve: process "/bin/sh -c uv sync ..." did not complete successfully:
 network bridge not found
 ```
 The build dies at the first `RUN` step that needs the network (e.g. `uv sync`).
 
-### Why a build needs the default bridge
+### **Why a build needs the default bridge**
 Each `RUN` step in a build runs in a temporary container, and like any container it attaches to the default `bridge` (`docker0`, [section 2](#2-two-kinds-of-docker-networks)) unless told otherwise. This is how `uv sync` reaches the internal index. Docker normally creates `bridge` automatically on daemon start, so when it's missing, every build step that needs the network fails.
 
-### Diagnose
+### **Diagnose**
 ```bash
 docker network ls          # a healthy host has a 'bridge / bridge / local' row
 ```
@@ -203,7 +203,7 @@ It is set in a systemd **drop-in**:
 cat /etc/systemd/system/docker.service.d/override.conf
 ```
 
-#### systemd drop-ins — why there seem to be "two service files"
+#### **systemd drop-ins — why there seem to be "two service files"**
 `docker.service` is **one** service assembled from layers. `systemctl status docker` shows
 both the base unit and its drop-ins:
 ```text
@@ -237,7 +237,7 @@ To re-enable the bridge you edit **this drop-in** (remove `--bridge=none`), not 
 > **Do NOT blindly re-enable the default bridge.** `dockerd --bridge=default` recreates `docker0` on `172.17.0.0/16`. If that overlaps an internal route (common with `172.x` corporate networks), it breaks outbound connectivity for the **whole host**: the classic "all docker services became unreachable" outage.
 {: .prompt-danger}
 
-### Fix A — build with host networking (no daemon changes, safe)
+### **Fix A — build with host networking (no daemon changes, safe)**
 Borrows the host's working network for the build step only:
 ```bash
 docker build --network=host \
@@ -259,7 +259,7 @@ build:
 > `--network=host` only fixes the **build**. Running the container via `docker compose up` still needs a network; if `bridge` is missing, add `network_mode: host` to the service or apply Fix B. (If you build with a `buildx` builder using the `docker-container` driver, host networking must also be allowed: `--allow network.host`.)
 {: .prompt-info}
 
-### Fix B — re-enable a bridge on a NON-conflicting subnet (daemon change)
+### **Fix B — re-enable a bridge on a NON-conflicting subnet (daemon change)**
 1. Remove `--bridge=none` from the ExecStart line in
    `/etc/systemd/system/docker.service.d/override.conf`.
 2. Set a safe subnet in `/etc/docker/daemon.json` (192.168.x avoids 172.x/10.x corp ranges):
@@ -286,7 +286,7 @@ build:
 - A daemon restart only recreates `bridge` if the daemon is **not** started with
   `--bridge=none`. Check `systemctl status docker` first.
 
-### Build-time network vs run-time network (two SEPARATE moments)
+### **Build-time network vs run-time network (two SEPARATE moments)**
 
 This trips everyone up. A container's life has **two** networking moments, and fixing one
 does **not** fix the other.
@@ -318,7 +318,7 @@ services:
 
 What host mode changes for ports (`ports:` is ignored, the app's own port becomes the host port) is covered in [Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}).
 
-### Worked example — bridge disabled AND a colliding subnet
+### **Worked example — bridge disabled AND a colliding subnet**
 
 On one deploy host, `ip route` showed the corporate net routes `172.17.32.0/23` + `172.17.34.0/23`, both inside Docker's default `172.17.0.0/16`. That's a **real collision**. All of `192.168.x` was free. Docker was also started with `--bridge=none`. The resolution that worked:
 - removed `--bridge=none` from the systemd drop-in `override.conf`,
@@ -331,7 +331,7 @@ On one deploy host, `ip route` showed the corporate net routes `172.17.32.0/23` 
 
 ---
 
-## 7. Choosing a safe range
+## **7. Choosing a safe range**
 
 Private ranges are `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`. A subnet is safe if it overlaps none of:
 
@@ -345,9 +345,9 @@ Private ranges are `10.0.0.0/8`, `172.16.0.0/12` and `192.168.0.0/16`. A subnet 
 
 ---
 
-## 8. Configuration
+## **8. Configuration**
 
-### `/etc/docker/daemon.json` (server-wide)
+### **`/etc/docker/daemon.json` (server-wide)**
 
 ```json
 {
@@ -381,7 +381,7 @@ sudo systemctl restart docker
 docker info | grep -A5 -i "address pools"                        # confirm the pool is active
 ```
 
-### Compose — pin the project's subnet (per project, no daemon restart)
+### **Compose — pin the project's subnet (per project, no daemon restart)**
 
 At the top level of `docker-compose.yaml`, beside `services:`:
 
@@ -394,7 +394,7 @@ networks:
 ```
 {: file="docker-compose.yaml"}
 
-### Compose — skip the project network entirely
+### **Compose — skip the project network entirely**
 
 For a single service that doesn't need name-based DNS, join `docker0` instead. No new subnet is ever created; `ports:` mappings still work.
 
@@ -407,7 +407,7 @@ services:
 
 ---
 
-## 9. What to do when
+## **9. What to do when**
 
 | Situation | Do this |
 |---|---|
@@ -421,7 +421,7 @@ services:
 
 ---
 
-## 10. Debug toolkit
+## **10. Debug toolkit**
 
 {% raw %}
 ```bash
@@ -462,7 +462,7 @@ ssh -vvv user@<host>
 
 ---
 
-## 11. Safe rollout with automatic rollback
+## **11. Safe rollout with automatic rollback**
 
 Run from the same SSH path you care about (the one that would break):
 
@@ -488,7 +488,7 @@ If the session drops, wait 3 minutes. The network is removed and the route comes
 
 ---
 
-## 12. If you are already locked out
+## **12. If you are already locked out**
 
 1. You cannot fix it over the network: the route to you is the broken part.
 2. Get in another way:

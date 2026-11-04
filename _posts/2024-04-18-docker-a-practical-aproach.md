@@ -45,11 +45,11 @@ tags: [docker, docker-compose]
 
 ---
 
-## What Is Docker?
+## **What Is Docker?**
 
 Docker is a platform that allows you to build, ship, and run applications in containers. Containers are lightweight, portable units that bundle your code along with all its dependencies so it runs reliably anywhere — on your machine, a server, or in the cloud.
 
-## Docker Ecosystem Overview
+## **Docker Ecosystem Overview**
 
 Here's how everything fits together:
 
@@ -91,7 +91,7 @@ Building and Running a Single Container
 - **Docker Compose**: A tool for defining and running multi-container Docker applications.
 - **Docker Hub**: A cloud registry for Docker images (like GitHub, but for containers).
 
-## Understanding the basic components
+## **Understanding the basic components**
 
 
 | Component       | What It Does                                         | Do You Need It?                  | 
@@ -100,7 +100,7 @@ Building and Running a Single Container
 | Docker Desktop  | GUI + VM wrapper around Docker Engine. Required on Windows/macOS. | ✅ Yes (if on Windows/macOS)    | 
 | Docker Compose  | Tool to manage multi-container apps using a YAML file. | ✅ Yes (if using multiple containers) | 
 
-### Docker Engine vs Docker Desktop
+### **Docker Engine vs Docker Desktop**
 - Docker Engine is the actual backend service that runs containers. It includes:
   - dockerd (daemon)
   - docker CLI
@@ -114,9 +114,9 @@ Building and Running a Single Container
 >On Linux, you can install Docker Engine directly. On Windows/macOS, Docker Desktop is required because Docker needs a Linux kernel to run.
 {: .prompt-info}
 
-## Install
+## **Install**
 
-### Windows:
+### **Windows:**
 - [Install Docker Desktop](https://docs.docker.com/desktop/setup/install/windows-install/)  
 This includes Docker Engine, Docker CLI, and Docker Compose.  
 - Verify Installation  
@@ -125,7 +125,7 @@ docker --version
 docker compose version
 ```
 
-### Linux
+### **Linux**
 
 Update your system  
 ```shell
@@ -136,7 +136,7 @@ Install required packages
 ```shell
 sudo apt install apt-transport-https ca-certificates curl software-properties-common -y
 ```
-#### 🐳 Installing Docker: **Using Official Docker CE**  or  **Linux Distro Repositories**
+#### **🐳 Installing Docker: **Using Official Docker CE**  or  **Linux Distro Repositories****
 
 - [x] **Official Docker CE** (*Recomended*) install via **`sudo apt install docker-ce docker-ce-cli containerd.io -y`**
   >- Using `docker-ce`, `docker-ce-cli`, and `containerd.io` (Official Docker Repo):
@@ -187,7 +187,7 @@ Verify installation
 ```shell
 docker --version
 ```
-## Structure of a Docker Project
+## **Structure of a Docker Project**
 
 **Example**
 ```
@@ -198,7 +198,7 @@ my-app/
 └── docker-compose.yml  (optional)
 ```
 
-### Dockerfile: Heart of Docker
+### **Dockerfile: Heart of Docker**
 
 A Dockerfile is a set of instructions for building your image.
 
@@ -221,7 +221,7 @@ COPY . .
 CMD ["python", "app.py"]
 ```
 
-## How Docker Works (Simplified)
+## **How Docker Works (Simplified)**
 
 You write a Dockerfile
 
@@ -248,9 +248,9 @@ docker run -p 8080:5000 myapp
 {: .prompt-tip}
 
 
-## Common questions on Dockerfile
+## **Common questions on Dockerfile**
 
-### What is a Dockerfile?
+### **What is a Dockerfile?**
 
 Yes — the Dockerfile is the main configuration file that tells Docker how to build an image for your application.
 
@@ -262,7 +262,7 @@ It's like a recipe:
 - **Code** – Your actual application source files and logic.
 - **What to run** – The startup command that launches your app inside the container.
 
-### Does the Dockerfile have to be named Dockerfile?
+### **Does the Dockerfile have to be named Dockerfile?**
 
 By default, yes.
 
@@ -280,7 +280,7 @@ But you can name it anything if you specify it manually:
 docker build -f MyDockerfile -t myimage .
 ```
 
-### Can a project have multiple Dockerfiles?
+### **Can a project have multiple Dockerfiles?**
 
 YES — it’s common!
 
@@ -295,7 +295,7 @@ Each one might use different base images or dependencies. You just build them se
 ```
 docker build -f Dockerfile.dev -t myapp-dev .
 ```
-### Does the docker build name have to be special?
+### **Does the docker build name have to be special?**
 You can name a Docker image almost anything, but there are some rules and best practices:
 
 ** most used format:**
@@ -323,7 +323,7 @@ You can name a Docker image almost anything, but there are some rules and best p
 {: .prompt-info}
 
 
-## Why Docker Compose?
+## **Why Docker Compose?**
 
 Docker Compose is essential when:
 - You want to run multiple containers (e.g., web + database)  
@@ -381,9 +381,9 @@ docker compose down
 ```
 > - Use **`docker compose`** if installed as a plugin (recomened and new way) else use **`docker-compose`** 
 
-## Key questions on docker compose
+## **Key questions on docker compose**
 
-### 1. What is `context:` in Docker Compose?
+### **1. What is `context:` in Docker Compose?**
 
 `context` specifies the folder sent to the Docker engine during the build. It tells Docker where to find the `Dockerfile` and all source files used in the build process.
 
@@ -403,7 +403,7 @@ build:
 
 ---
 
-## 2. Is `postgres:15` local or remote? How does Docker know?
+## **2. Is `postgres:15` local or remote? How does Docker know?**
 
 Docker first checks if the image `postgres:15` exists locally. If not, it tries to pull it from a remote registry like Docker Hub.
 
@@ -412,7 +412,7 @@ Docker first checks if the image `postgres:15` exists locally. If not, it tries 
 
 ---
 
-## 3. How does Docker know to use `Dockerfile.dev`?
+## **3. How does Docker know to use `Dockerfile.dev`?**
 
 You explicitly specify the Dockerfile in Compose:
 
@@ -426,7 +426,7 @@ Without `dockerfile:`, Docker defaults to `Dockerfile`. Custom filenames require
 
 ---
 
-## Full Flow: Compose Build and Run
+## **Full Flow: Compose Build and Run**
 
 Running:
 
@@ -461,9 +461,9 @@ docker-compose up --build
 +------------------+
 ```
 
-## Multistage Dockerfiles
+## **Multistage Dockerfiles**
 
-#### 1. Normal Dockerfile behavior
+#### **1. Normal Dockerfile behavior**
 Normally, a Dockerfile has one `FROM` at the top, which defines the base image. Every instruction after that builds layers on top of this base.
 **Example:**
 
@@ -476,7 +476,7 @@ RUN apt-get update && apt-get install -y curl
 
 ---
 
-#### 2. What happens with multiple FROM statements
+#### **2. What happens with multiple FROM statements**
 When you add another `FROM`, Docker starts a **brand-new build stage**.  
 Each stage is like its own Dockerfile, but all inside one file.
 **Example:**
@@ -496,7 +496,7 @@ At the end of the build, the final image is **always from the last `FROM`** bloc
 
 ---
 
-### How it applies to a Dockerfile with Example
+### **How it applies to a Dockerfile with Example**
 
 <details>
   <summary><strong>AN EXAMPLE FILE [CLICK ME]</strong></summary>
@@ -557,7 +557,7 @@ At the end of the build, the final image is **always from the last `FROM`** bloc
 
 Your Dockerfile has **two stages**:
 
-#### Stage 1 (AS `build-stage`)
+#### **Stage 1 (AS `build-stage`)**
 
 ```dockerfile
 FROM python:3.13.5-slim-bookworm AS build-stage
@@ -570,7 +570,7 @@ Used only to **build the `bind.so` shared library**.
 
 ---
 
-#### Stage 2 (final image)
+#### **Stage 2 (final image)**
 
 ```dockerfile
 FROM python:3.13.5-slim-bookworm
@@ -601,16 +601,16 @@ It grabs **only the `bind.so` file** from stage 1, nothing else.
 >  - **Stage 2**: clean final image, only copy in what you really need.
 {: .prompt-tip}
 
-## Common Docker Commands
+## **Common Docker Commands**
 
-### Images
+### **Images**
 ```
 docker build -t myimage .          # Build image from Dockerfile
 docker images                      # List all images
 docker rmi <image_id>              # Remove an image
 ```
 
-### Containers
+### **Containers**
 ```
 docker run -d -p 80:80 myimage     # Run in detached mode
 docker ps                          # List running containers
@@ -619,7 +619,7 @@ docker stop <container_id>         # Stop a container
 docker rm <container_id>           # Remove a container
 ```
 
-### Volumes & Bind Mounts (Persisting Data)
+### **Volumes & Bind Mounts (Persisting Data)**
 
 A container's own filesystem disappears when the container is removed. Anything that must survive (data, output, config you want to edit) is **mounted** from outside. There are two kinds:
 
