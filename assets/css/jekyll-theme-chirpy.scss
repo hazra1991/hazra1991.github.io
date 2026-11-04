@@ -1,68 +1,79 @@
-// ---
-// ---
+---
+---
 
-// /* prettier-ignore */
-// @use 'main
-// {%- if jekyll.environment == 'production' -%}
-//   .bundle
-// {%- endif -%}
-// ';
+/* prettier-ignore */
+@use 'main
+{%- if jekyll.environment == 'production' -%}
+  .bundle
+{%- endif -%}
+';
 
-// /* ======================================================================
-//    CUSTOM STYLES  (everything below overrides the theme)
-//    This whole file is the only thing you edit for look & feel.
-//    Delete a block to go back to the theme default for that bit.
-//    ====================================================================== */
+// =====================================================================
+// CUSTOM STYLES — "readability" preset
+// ---------------------------------------------------------------------
+// HOW TO USE / TOGGLE:
+//   - Each numbered block is independent. To turn one OFF, comment its
+//     lines (put // in front) or delete them; the theme default returns
+//     for whatever you remove.
+//   - To turn ALL custom styling off: delete this whole file. The gem's
+//     default stylesheet then takes over automatically.
+//   - Main knob: $read-width below. Change it, run `make serve`, watch
+//     the reading column resize.
+// =====================================================================
 
-// /* 1. FONTS ------------------------------------------------------------
-//    Chirpy only *names* Source Sans Pro / Lato; it doesn't load them.
-//    Import real webfonts here, then point the theme's families at them.
-//    (Remove this @import + the two font-family lines to keep system fonts.) */
-// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:wght@600;700&display=swap');
+// >>> ALL CUSTOM STYLES ARE DISABLED FOR NOW <<<
+// The site uses the stock Chirpy look. To switch a block back ON, remove
+// the leading "// " from its CSS lines (not from the notes). Keep the
+// front matter and @use 'main' above untouched, or the whole site loses
+// its CSS.
 
-// body {
-//   font-family: 'Inter', 'Source Sans Pro', sans-serif;   /* body text */
-// }
+// $read-width: 52rem; // reading column width. try 48rem (denser) ... 60rem (wider)
 
-// h1, h2, h3, h4, h5, h6 {
-//   font-family: 'Lora', Lato, serif;                      /* headings */
-// }
-
-// /* 2. BODY TEXT SIZE & SPACING ----------------------------------------
-//    Post reading text. Theme default: 1.08rem, line-height 1.75. */
+// 1. READING COLUMN + LINE SPACING
+//    The biggest win: stop prose lines from running the full page width,
+//    and give lines a little more height.
+//    (Theme default: full column width, line-height ~1.75.)
 // .content {
-//   font-size: 1.05rem;
-//   line-height: 1.8;        /* a touch more breathing room between lines */
+//   max-width: $read-width;
+//   margin-inline: auto; // center the narrowed column in the main area
+//   line-height: 1.8;
 // }
 
+// 2. PARAGRAPH & LIST SPACING
+//    A touch more air between blocks so dense posts breathe.
 // .content p {
-//   margin-bottom: 1.1rem;   /* space between paragraphs */
+//   margin-bottom: 1.15rem;
 // }
 
-// /* 3. HEADINGS --------------------------------------------------------
-//    Weight + space above/below. You already bolded the markdown text;
-//    this also controls spacing so sections feel separated. */
+// .content li {
+//   margin-bottom: 0.3rem;
+// }
+
+// 3. HEADING RHYTHM
+//    More space ABOVE a heading than below it, so each section reads as a
+//    clear unit. (You already bolded the heading text in markdown.)
 // .content h2 {
-//   font-weight: 700;
-//   margin: 2.75rem 0 1.25rem;
+//   margin: 2.75rem 0 1.15rem;
 // }
 
 // .content h3 {
-//   font-weight: 700;
-//   margin: 2rem 0 0.9rem;
+//   margin: 2rem 0 0.8rem;
 // }
 
-// /* 4. CONTENT WIDTH (optional) ----------------------------------------
-//    The reading column. Theme default is wide (1250px incl. sidebar).
-//    Uncomment to make long text lines shorter / easier to read. */
-// /*
-// #main-wrapper .container {
-//   max-width: 1100px;
+// 4. FONTS (optional — OFF by default)
+//    Chirpy names but doesn't load Source Sans Pro / Lato, so you see
+//    system fonts now. Uncomment to load a real webfont for body text.
+//    Swap "Inter" for any family from fonts.google.com.
+// @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+// body {
+//   font-family: 'Inter', 'Source Sans Pro', sans-serif;
 // }
-// */
 
-// /* 5. CODE BLOCKS (optional) ------------------------------------------
-//    Slightly larger mono text. Theme default is 0.85rem. */
-// .content pre code {
-//   font-size: 0.86rem;
+// 5. CAP THE WHOLE COLUMN ON HUGE SCREENS (optional — OFF by default)
+//    An alternative to block 1 if you ever remove it but still want to
+//    rein in ultra-wide monitors.
+// @media (min-width: 1400px) {
+//   #main-wrapper > .container {
+//     max-width: 1100px;
+//   }
 // }
