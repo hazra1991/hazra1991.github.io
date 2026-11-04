@@ -2,8 +2,9 @@
 layout: post
 title: "Generics in Python: A Beginner's Guide"
 date: 2025-08-10
-desc: "Learn the fundamentals of generics in Python, how they enhance code flexibility and type safety, and practical examples to get you started."
-tags: [python, generics, typing, tutorial, type-hints]
+description: "Learn the fundamentals of generics in Python, how they enhance code flexibility and type safety, and practical examples to get you started."
+categories: [Python, Language]
+tags: [python, typing, generics]
 ---
 Before we jump into the world of **generics**, let’s first understand why **[typing is important in Python]({{ site.posts | where: "slug", "typing-in-python" | first.url | relative_url }})**.
 

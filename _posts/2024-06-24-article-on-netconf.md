@@ -2,8 +2,9 @@
 layout: post  
 title: "Introduction to NETCONF and YANG"  
 date: 2024-06-24
-desc: "Explore how NETCONF and YANG work together to simplify and standardize network configuration and management. Ideal for network engineers and developers new to these technologies"  
-tags: [netconf, yang, networking, tutorial]
+description: "Explore how NETCONF and YANG work together to simplify and standardize network configuration and management. Ideal for network engineers and developers new to these technologies"  
+categories: [Networking, Network Automation]
+tags: [networking, netconf, yang]
 ---
 
 Network automation is moving beyond traditional CLI-based approaches.  

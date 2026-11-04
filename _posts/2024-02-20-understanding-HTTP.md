@@ -2,8 +2,9 @@
 layout: post
 title: "Understanding HTTP: Requests, Responses"
 date: 2024-02-20
-desc: "A beginner-friendly guide to understanding the HTTP protocol, covering how requests and responses work in web communication."
-tags: [http, networking, web, tutorial, protocol, requests, responses]
+description: "A beginner-friendly guide to understanding the HTTP protocol, covering how requests and responses work in web communication."
+categories: [Backend, Web Fundamentals]
+tags: [http, headers, cors, networking, fundamentals]
 ---
 
 - **[Http or any protocol is not a socket it works on a socket, enter to know more]({{ site.posts | where: "slug", "sockets-explained-in-python" | first.url | relative_url }})**

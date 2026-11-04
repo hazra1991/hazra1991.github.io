@@ -2,8 +2,9 @@
 layout: post
 title: "pip install -e and Editable Installs"
 date: 2023-12-25
-desc: "Learn how pip and pyproject.toml work together in modern Python packaging. Understand installation flow, build systems, and best practices."
-tags: [python, pip, pyproject.toml, packaging, build-system, tutorial]
+description: "Learn how pip and pyproject.toml work together in modern Python packaging. Understand installation flow, build systems, and best practices."
+categories: [Python, Packaging]
+tags: [python, pip, pyproject.toml]
 ---
 
 Editable installs (`pip install -e`) are essential for Python developers working on packages under active development. 

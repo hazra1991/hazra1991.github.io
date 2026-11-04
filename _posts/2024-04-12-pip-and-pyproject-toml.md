@@ -2,8 +2,9 @@
 layout: post
 title: "Inside pip and pyproject.toml"
 date: 2024-04-12
-desc: "Learn how pip and pyproject.toml work together in modern Python packaging. Understand installation flow, build systems, and best practices."
-tags: [python, pip, pyproject.toml, packaging, build-system, tutorial]
+description: "Learn how pip and pyproject.toml work together in modern Python packaging. Understand installation flow, build systems, and best practices."
+categories: [Python, Packaging]
+tags: [python, pip, pyproject.toml]
 ---
 
 ## How `pip` Works, the Role of `pyproject.toml`.

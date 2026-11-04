@@ -2,8 +2,9 @@
 layout: post
 title: "Redis — Practical Understanding Notes"
 date: 2026-01-12
-desc: "Practical notes to understand Redis concepts, usage patterns, and real-world applications."
-tags: [redis, database, caching, backend]
+description: "Practical notes to understand Redis concepts, usage patterns, and real-world applications."
+categories: [Databases, Redis]
+tags: [redis, database, caching, cheatsheet]
 ---
 
 <details>

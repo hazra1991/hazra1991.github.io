@@ -2,8 +2,8 @@
 layout: post  
 title: "Langfuse: Why It Matters and How to Get Started"
 date: 2025-08-26
-categories: ['Tutorial','Telemetry']
-tags: ['langfuse','telemetry',tutorial]
+categories: [Observability, LLM Observability]
+tags: [langfuse, llm, tracing, opentelemetry]
 slug: langfuse-why-it-matters-getting-started
 image:
   path: assets/images/covers/langfuse.png

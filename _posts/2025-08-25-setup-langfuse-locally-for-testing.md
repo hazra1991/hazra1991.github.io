@@ -2,8 +2,8 @@
 layout: post  
 title: "Langfuse Self-Hosting Startup Guide (Local Deployment)"
 date: 2025-08-25
-categories: ['Tutorial', 'Observability']
-tags: ['langfuse', 'telemetry', 'LLM observability', 'setup']
+categories: [Observability, LLM Observability]
+tags: [langfuse, llm, docker-compose]
 slug: langfuse-intro-local-setup
 ---
 

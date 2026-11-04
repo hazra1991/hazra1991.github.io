@@ -2,8 +2,8 @@
 layout: post  
 title: Chirpy Front Matter Key Settings for Your Blog
 date: 2025-01-13
-categories: ['blog','chirpy-guide']
-tags: ['jekyll','chirpy-guide']
+categories: [Blog, Chirpy]
+tags: [jekyll, chirpy]
 image:
   path: assets/images/covers/chirpy.webp
   alt: Chirpy theme front matter key settings illustrated cover image
@@ -61,7 +61,7 @@ author: alex
 image:
   path: /assets/img/type-hints.png
   alt: Type Hints Diagram
-desc: "An easy guide to Python type hints and code quality."
+description: "An easy guide to Python type hints and code quality."
 toc: true
 comments: true
 pin: false
@@ -89,7 +89,7 @@ Let’s break down what each Front Matter field does and whether it’s **requir
 | `author`  | ⛔ Optional | If present, shows author name in the post footer. Useful for multi-author blogs. |
 | `image`   | ⛔ Optional | Used for post previews and social media cards.                            |
 | `layout`  | ❌ Not needed | Chirpy auto-detects layout for posts in `_posts/`. Only needed for custom pages. |
-| `desc`    | ⛔ Optional | Short description for meta tags and SEO. If missing, Chirpy auto-extracts from content. |
+| `description` | ⛔ Optional | Short description shown on the home-page card, in SEO meta tags and the feed. If missing, Chirpy auto-extracts the first text of the post. |
 | `math`    | ⛔ Optional | Set to `true` to enable MathJax/KaTeX rendering.                         |
 | `mermaid` | ⛔ Optional | Set to `true` to enable Mermaid diagrams.                                |
 | `toc`     | ⛔ Optional | Enable/disable Table of Contents (`true` or `false`). Default is `true`. |
@@ -102,7 +102,7 @@ Let’s break down what each Front Matter field does and whether it’s **requir
 
 - Keep `title` and `date` in every post — they’re essential for correct rendering and URLs.
 - Use `categories` and `tags` for better organization and search.
-- For a clean preview on social platforms, add an `image` and `desc`.
+- For a clean preview on social platforms, add an `image` and `description`.
 
 Need more customization options? Check out the [Chirpy documentation](https://chirpy.cotes.page/posts/write-a-new-post/) for advanced Front Matter usage.
 

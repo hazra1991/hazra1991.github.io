@@ -2,8 +2,9 @@
 layout: post
 title: "Understanding Type Hints in Python"
 date: 2025-08-10
-desc: "A beginner-friendly guide to Python type hints: what they are, how to use them, and why they improve code readability and safety."
-tags: [python, typing, type-hints, tutorial, mypy, code-quality]
+description: "A beginner-friendly guide to Python type hints: what they are, how to use them, and why they improve code readability and safety."
+categories: [Python, Language]
+tags: [python, typing, mypy]
 ---
 
 Imagine you’re writing a simple Python script:

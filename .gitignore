@@ -26,3 +26,5 @@ package-lock.json
 _sass/vendors
 assets/js/dist
 .my_temp_files
+.info.md
+to_be_written_or_updated

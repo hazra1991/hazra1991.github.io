@@ -2,8 +2,9 @@
 layout: post
 title: "Threading in python"
 date: 2024-01-19
-desc: "A beginner-friendly guide to threading in Python. Understand how to run multiple threads, manage concurrency, and improve program performance with practical examples."
-tags: [python, threading, concurrency, multithreading, tutorial]
+description: "A beginner-friendly guide to threading in Python. Understand how to run multiple threads, manage concurrency, and improve program performance with practical examples."
+categories: [Python, Concurrency]
+tags: [python, threading, fundamentals]
 ---
 
 Python's `threading` module is a powerful tool for running tasks concurrently, especially when dealing with I/O-bound operations. However, it comes with certain nuances—particularly the **Global Interpreter Lock (GIL)**—that every developer should understand.

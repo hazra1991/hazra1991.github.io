@@ -2,8 +2,9 @@
 layout: post
 title: "Memory Management in C and Python: A Comparative Overview"
 date: 2024-01-04
-desc: "A clear comparison of memory management concepts in C and Python, covering stack vs heap, reference counting, garbage collection, and weak references."
-tags: [python, c, memory-management, tutorial, comparison, programming, guide, beginner]
+description: "A clear comparison of memory management concepts in C and Python, covering stack vs heap, reference counting, garbage collection, and weak references."
+categories: [Python, Language]
+tags: [python, c, memory-management, fundamentals]
 ---
 
 - Memory Management in C

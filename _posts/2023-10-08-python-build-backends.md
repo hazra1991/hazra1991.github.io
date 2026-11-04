@@ -2,8 +2,9 @@
 layout: post
 title: "Modern Python Build : Frontend, Backend, and Interfaces Explained"
 date: 2023-10-08
-desc: "Understand Python's modern build system architecture including pip (frontend), setuptools or poetry (backend), and pyproject.toml. Learn how they work together to build and install packages in a clean, standardized, and isolated way."
-tags: [python, pip, pyproject.toml, packaging, build-system, tutorial]
+description: "Understand Python's modern build system architecture including pip (frontend), setuptools or poetry (backend), and pyproject.toml. Learn how they work together to build and install packages in a clean, standardized, and isolated way."
+categories: [Python, Packaging]
+tags: [python, pip, pyproject.toml, build-system, setuptools]
 ---
 
 - **[Read about pip and pyproject.toml]({{ site.posts | where: "slug", "pip-and-pyproject-toml" | first.url | relative_url }})**

@@ -2,8 +2,9 @@
 layout: post  
 title: "Demystifying Python Metaclasses"  
 date: 2023-12-20  
-desc: "A beginner-friendly guide to understanding metaclasses in Python, how they work, and when to use them."  
-tags: [python, metaclasses, oop, advanced-python, tutorial, dunder-methods]
+description: "A beginner-friendly guide to understanding metaclasses in Python, how they work, and when to use them."  
+categories: [Python, Language]
+tags: [python, metaclasses, oop]
 ---
 
 **A clear, practical guide for Python 3 (and a note about old-style Python 2 syntax)**

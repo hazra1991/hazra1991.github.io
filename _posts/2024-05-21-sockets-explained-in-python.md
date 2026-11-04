@@ -2,8 +2,9 @@
 layout: post
 title: "Sockets: The Building Blocks of Network Communication "
 date: 2024-05-21
-desc: "Explore the fundamentals of sockets in network programming. Learn how sockets act as communication endpoints, understand TCP/IP and Unix domain sockets, and see how client-server communication is established and managed in Python."
-tags: [networking, sockets, python, tcp/ip, communication, tutorial]
+description: "Explore the fundamentals of sockets in network programming. Learn how sockets act as communication endpoints, understand TCP/IP and Unix domain sockets, and see how client-server communication is established and managed in Python."
+categories: [Networking, Network Fundamentals]
+tags: [networking, sockets, tcp, python, fundamentals]
 ---
 
 - [What Are Sockets?](#what-are-sockets)

@@ -2,12 +2,16 @@
 layout: post  
 title: "Docker: A Practical Approach"  
 date: 2024-04-18
-desc: "Learn to build, deploy, and manage containerized applications with real-world examples and integration best practices."  
-tags: [docker, containers, devops, tutorial]
+description: "Learn to build, deploy, and manage containerized applications with real-world examples and integration best practices."  
+categories: [Deployment, Docker]
+tags: [docker, docker-compose]
 ---
 
+> **Docker series:** **1. Docker: A Practical Approach** · [2. Deployment in Practice]({{ site.posts | where: "slug", "docker-deployment-in-practice" | first.url | relative_url }}) · [3. Networking Part 1: How a Request Reaches Your Container]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}) · [4. Networking Part 2: Subnets, IP Collisions and the Default Bridge]({{ site.posts | where: "slug", "docker-networking-part-2" | first.url | relative_url }})
+{: .prompt-info}
+
 <details>
-<summary><storng>Table of content</storng></summary>
+<summary><strong>📑 Table of Contents</strong></summary>
 <div markdown="1">
 
 - [What Is Docker?](#what-is-docker)
@@ -34,6 +38,7 @@ tags: [docker, containers, devops, tutorial]
   - [3. How it applies to a Dockerfile with Example](#how-it-applies-to-a-dockerfile-with-example)
   - [4. Build process explained Nutshell](#so-the-build-goes)
 - [Common Docker Commands](#common-docker-commands)
+  - [Volumes & Bind Mounts (Persisting Data)](#volumes--bind-mounts-persisting-data)
 
 </div>
 </details>
@@ -107,7 +112,7 @@ Building and Running a Single Container
   - Docker Compose pre-installed
   
 >On Linux, you can install Docker Engine directly. On Windows/macOS, Docker Desktop is required because Docker needs a Linux kernel to run.
-{: .promt-info}
+{: .prompt-info}
 
 ## Install
 
@@ -140,12 +145,14 @@ sudo apt install apt-transport-https ca-certificates curl software-properties-co
   >- **Setup:** Requires adding Docker’s GPG key and repo.
   >- **Best for:** Production use and when you need the latest Docker features.
   >
+  >Add Docker's GPG key (`apt-key` is deprecated, so the key goes into its own keyring file)
   >```shell
-  >curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  >sudo install -m 0755 -d /etc/apt/keyrings
+  >sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
   >```
-  >Add Docker repository  
+  >Add Docker repository (picks up your CPU architecture and Ubuntu release automatically)
   >```shell
-  >sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+  >echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   >```
   >Install Docker Engine  
   >```shell
@@ -237,6 +244,9 @@ docker run -p 8080:5000 myapp
   | docker run -p 5000:5000  | 5000      | 5000           | localhost:5000  |
   | docker run -p 8080:5000  | 8080      | 5000           | localhost:8080  |
 
+> What actually happens behind `-p` (NAT into the container, why the app inside must listen on `0.0.0.0`, and how to keep a published port from bypassing nginx) is covered in [Networking Part 1]({{ site.posts | where: "slug", "docker-networking-part-1" | first.url | relative_url }}).
+{: .prompt-tip}
+
 
 ## Common questions on Dockerfile
 
@@ -246,7 +256,7 @@ Yes — the Dockerfile is the main configuration file that tells Docker how to b
 
 It's like a recipe:
 
-![docker imagae](assets/images/snaps/docker.png){: .w-50 .right}
+![docker image](/assets/images/snaps/docker.png){: .w-50 .right}
 - **Base OS** – The minimal operating system layer your app runs on.
 - **Dependencies** – All the libraries, packages, or runtimes your app needs.
 - **Code** – Your actual application source files and logic.
@@ -332,7 +342,6 @@ Docker Compose is essential when:
 
 ```yaml
 # example showing both the ways (Can Use Both in the Same Compose File)
-version: '3.8'
 services:
   web:
     build: .
@@ -346,7 +355,6 @@ services:
 
 >note the `build: ` directive supports custome path and names a well as mentioned below 
 ```yml
-version: '3.8'
 services:
   web:
     build:
@@ -357,6 +365,9 @@ services:
 ```
 {: .prompt-info}
 
+
+> Older compose files start with `version: '3.8'`. Current `docker compose` ignores that key (and warns that it's obsolete), so you can leave it out.
+{: .prompt-info}
 
 **Run it with:**
 
@@ -518,7 +529,7 @@ At the end of the build, the final image is **always from the last `FROM`** bloc
     LABEL version="1.9.2p1"
 
     SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-    RUN echo "root:bigfoot1" | chpasswd
+    RUN echo "root:changeme" | chpasswd   # example only, never bake real passwords into an image
 
     # hadolint ignore=DL3008
     RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -609,7 +620,21 @@ docker rm <container_id>           # Remove a container
 ```
 
 ### Volumes & Bind Mounts (Persisting Data)
+
+A container's own filesystem disappears when the container is removed. Anything that must survive (data, output, config you want to edit) is **mounted** from outside. There are two kinds:
+
 ```
-docker run -v myvolume:/data myimage
 docker volume create myvolume
+docker run -v myvolume:/data myimage        # named volume: NAME:CONTAINER_PATH, managed by Docker
+docker run -v ./data:/data myimage          # bind mount:   HOST_PATH:CONTAINER_PATH, a real folder on your machine
 ```
+
+| | Bind mount (`./data:/data`) | Named volume (`myvolume:/data`) |
+|---|---|---|
+| Where the files live | A folder you choose on the host | Docker's storage (`/var/lib/docker/volumes/...`) |
+| See/edit files directly | ✅ | ❌ (`docker cp` or exec in) |
+| File ownership issues | Possible (UID mismatch) | Handled by Docker |
+| Best for | configs, dev, inspecting output | opaque persistent state (databases) |
+
+> Why bind-mounted files can end up owned by the "wrong" user, and what really belongs inside the image vs. in a mount, is covered in [Deployment in Practice]({{ site.posts | where: "slug", "docker-deployment-in-practice" | first.url | relative_url }}).
+{: .prompt-tip}

@@ -2,8 +2,8 @@
 layout: post  
 title: "HTML, CSS, and JavaScript — A Practical Overview"
 date: 2025-01-11
-categories: ['Tutorial', 'Frontend']
-tags: ['Html','css','js']
+categories: [Frontend, Frontend Basics]
+tags: [html, css, javascript]
 slug: html-css-and-javascript-overview
 image:
   path: assets/images/covers/html-js-css-website-coding.jpg

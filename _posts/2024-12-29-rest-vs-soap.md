@@ -2,8 +2,9 @@
 layout: post  
 title: "REST vs SOAP: A Brief Comparison"  
 date: 2024-12-29  
-desc: "Understand the key differences between REST and SOAP APIs — including protocols, data formats, flexibility, and use cases. Perfect for beginners exploring web services."  
-tags: [api, web-development, rest, soap, http, tutorial, integration]
+description: "Understand the key differences between REST and SOAP APIs — including protocols, data formats, flexibility, and use cases. Perfect for beginners exploring web services."  
+categories: [Backend, APIs]
+tags: [rest, soap, http]
 ---
 
 - REST vs SOAP – Just Fundamentals

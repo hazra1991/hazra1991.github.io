@@ -2,8 +2,8 @@
 layout: post  
 title: Kickstart Blogging with Chirpy
 date: 2025-02-05
-categories: ['blog','chirpy-guide']
-tags: ['jekyll','chirpy-guide']
+categories: [Blog, Chirpy]
+tags: [jekyll, chirpy]
 image:
   path: assets/images/covers/chirpy_2.jpg
   alt: Kickstart Blogging with Chirpy

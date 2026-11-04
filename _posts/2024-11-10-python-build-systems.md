@@ -2,8 +2,9 @@
 layout: post
 title: "Demystifying Python Packaging: Build Systems Explained"
 date: 2024-11-10
-desc: "Explore Python’s modern build system architecture, focusing on how tools like pip, setuptools, poetry, and pyproject.toml collaborate to create reliable, reproducible, and maintainable package builds and installations."
-tags: [python, tutorial, packaging, guide, beginner, how-to, development,build-system]
+description: "Explore Python’s modern build system architecture, focusing on how tools like pip, setuptools, poetry, and pyproject.toml collaborate to create reliable, reproducible, and maintainable package builds and installations."
+categories: [Python, Packaging]
+tags: [python, build-system, pyproject.toml, setuptools]
 ---
 
 **[Additional info on frontend, backend and , build interfaces]({{ site.posts | where: "slug", "python-build-backends" | first.url | relative_url }})**

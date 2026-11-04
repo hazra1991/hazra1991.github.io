@@ -2,8 +2,9 @@
 layout: post
 title: "UV: Python Project & Environment Manager"
 date: 2026-03-14
-desc: "Discover UV, a lightweight Python tool that simplifies project and environment management."
-tags: [python, uv, tutorial]
+description: "Discover UV, a lightweight Python tool that simplifies project and environment management."
+categories: [Python, Packaging]
+tags: [python, uv, venv, pyproject.toml]
 ---
 
 <details>

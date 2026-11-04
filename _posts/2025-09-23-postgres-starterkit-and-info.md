@@ -2,8 +2,8 @@
 layout: post  
 title: "PostgreSQL Starter Kit & Installation Guide"
 date: 2025-09-23
-categories: ['Tutorial', 'Database']
-tags: ['postgresql', 'database', 'setup', 'installation']
+categories: [Databases, PostgreSQL]
+tags: [postgresql, database, security, cheatsheet]
 slug: postgres-starterkit-and-info
 ---
 
